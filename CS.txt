@@ -1,0 +1,46 @@
+<div id="table-container"></div>
+<ul id="queue-list"></ul>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    // 1. Gumawa ng empty table
+    let tableHTML = `
+        <table border="1" id="queue-table">
+            <tr>
+                <th>Queue</th>
+                <th>Teller</th>
+                <th>Id Number</th>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Student Year</th>
+                <th>Student Course</th>
+            </tr>
+        </table>
+    `;
+    document.getElementById("table-container").innerHTML = tableHTML;
+
+    // 2. Connect to Socket.io
+    const socket = io("http://127.0.0.1:5000");
+
+    socket.on("queue_update", (data) => {
+        console.log("Data Received!", data);
+
+        // Add to table
+        const table = document.getElementById("queue-table");
+        const row = table.insertRow(1); // insert after header
+
+        row.insertCell(0).textContent = data.Queue;
+        row.insertCell(1).textContent = data.Teller;
+        row.insertCell(2).textContent = data.Id_Number;
+        row.insertCell(3).textContent = data.Name;
+        row.insertCell(4).textContent = data.Last_Name;
+        row.insertCell(5).textContent = data.Student_Year;
+        row.insertCell(6).textContent = data.Student_Course;
+
+        // Optional: Add to list as well
+        const list = document.getElementById("queue-list");
+        const li = document.createElement("li");
+        li.textContent = `Teller ${data.Teller} | Queue ${data.Queue} | ${data.Id_Number} | ${data.Name} | ${data.Last_Name} | ${data.Student_Year} | ${data.Student_Course}`;
+        list.insertBefore(li, list.firstChild);
+    });
+</script>

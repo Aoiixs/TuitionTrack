@@ -1,0 +1,958 @@
+/* ================= GLOBAL ================= */
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f4f7fb;
+    color:#333;
+}
+
+
+/* ================= NAVBAR ================= */
+
+.navbar{
+    position:fixed;
+    top:0;
+    width:100%;
+    height:70px;
+    background:#ffffff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 40px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    z-index:1000;
+}
+
+.logo{
+    font-weight:600;
+    font-size:18px;
+    color:#4da6a6;
+}
+
+.nav-links{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:#555;
+    font-size:14px;
+    padding:8px 16px;
+    border-radius:20px;
+    transition:.2s;
+}
+
+.nav-links a:hover{
+    background:#e7f3f3;
+}
+
+.nav-links a.active{
+    background:#cfe9e9;
+    color:#2d5d5d;
+}
+
+
+/* ================= CONTAINER ================= */
+
+.container,
+.analytics-container{
+    max-width:1200px;
+    margin:auto;
+    padding:110px 20px 40px;
+}
+
+
+/* ================= HEADER ================= */
+
+h1{
+    font-size:32px;
+    margin-bottom:5px;
+}
+
+.subtitle,
+.sub{
+    color:#777;
+    margin-bottom:30px;
+}
+
+
+/* ================= CARDS ================= */
+
+.cards,
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:40px;
+}
+
+.card,
+.stat-card{
+    background:#fff;
+    padding:22px;
+    border-radius:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+.card p,
+.stat-card p{
+    color:#888;
+    font-size:14px;
+    margin-bottom:5px;
+}
+
+.card h2,
+.stat-card h2{
+    margin:0;
+    font-size:24px;
+}
+
+
+/* ================= ICONS ================= */
+
+.icon{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+}
+
+.yellow{background:#fff4d6;}
+.blue{background:#dff3ff;}
+.green{background:#dff5e6;}
+.teal{background:#dff3f3;}
+.orange{background:#ffe6d5;}
+.lightgreen{background:#e5f7dc;}
+
+
+/* ================= TABLE ================= */
+
+.table-container,
+.queue-container{
+    background:#fff;
+    padding:25px;
+    border-radius:14px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    text-align:left;
+    font-size:13px;
+    color:#777;
+    padding:12px 0;
+}
+
+td{
+    padding:18px 0;
+    border-top:1px solid #eee;
+    font-size:14px;
+}
+
+
+/* ================= STUDENT INFO ================= */
+
+.student-name{
+    font-weight:600;
+}
+
+.student-id{
+    font-size:12px;
+    color:#888;
+}
+
+
+/* ================= STATUS ================= */
+
+.status{
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.waiting{
+    background:#f7e7a9;
+    color:#7a6515;
+}
+
+.processing{
+    background:#cfe9e9;
+    color:#2c6d6d;
+}
+
+.paid{
+    background:#dff5e6;
+    color:#2e7a45;
+}
+
+
+/* ================= BUTTON ================= */
+
+.add-payment-btn{
+    background:#cfe9e9;
+    border:none;
+    padding:8px 18px;
+    border-radius:20px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.add-payment-btn:hover{
+    background:#b8dfdf;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+}
+
+.btn{
+    padding:7px 14px;
+    border-radius:18px;
+    border:none;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.btn-process{
+    background:#bfe4e4;
+    color:#2c6d6d;
+}
+
+.btn-paid{
+    background:#d7f0d7;
+    color:#2f7a45;
+}
+
+.btn-cancel{
+    background:white;
+    border:1px solid #f3b2b2;
+    color:#cc4444;
+}
+
+.btn:hover{
+    opacity:0.9;
+}
+
+
+/* ================= FILTER BAR ================= */
+
+.filter-bar{
+    background:white;
+    padding:16px;
+    border-radius:14px;
+    display:flex;
+    gap:15px;
+    align-items:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom:25px;
+}
+
+.filter-bar input{
+    flex:1;
+    padding:10px 15px;
+    border-radius:20px;
+    border:1px solid #e1e1e1;
+    outline:none;
+}
+
+.filter-bar select{
+    padding:10px 15px;
+    border-radius:20px;
+    border:1px solid #e1e1e1;
+    background:white;
+}
+
+
+/* ================= ANALYTICS ================= */
+
+.chart-section{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:25px;
+}
+
+.chart-box{
+    background:white;
+    padding:25px;
+    border-radius:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+.chart-box h3{
+    margin-bottom:15px;
+    font-size:16px;
+}
+
+
+/* ================= PAYMENT ================= */
+
+.payment-card{
+    background:#ffffff;
+    padding:28px;
+    border-radius:14px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+.student-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:22px;
+    margin-top:20px;
+}
+
+.student-grid label{
+    font-size:13px;
+    color:#888;
+}
+
+.student-grid p{
+    font-weight:600;
+    margin-top:4px;
+    color:#2f3e46;
+}
+
+.payment-form{
+    margin-top:30px;
+}
+
+.amount-box{
+    display:flex;
+    gap:10px;
+    margin-top:8px;
+}
+
+.amount-box input{
+    flex:1;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #dcdcdc;
+    font-size:14px;
+    outline:none;
+}
+
+.amount-box input:focus{
+    border-color:#8ccccc;
+}
+
+.peso{
+    font-weight:700;
+    padding-top:10px;
+}
+
+.pay-btn{
+    background:#8ccccc;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.pay-btn:hover{
+    background:#78baba;
+}
+
+.rfid-box{
+    margin-top:25px;
+    background:#eef7f7;
+    padding:15px;
+    border-radius:10px;
+    font-size:14px;
+    color:#555;
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:900px){
+
+    .chart-section{
+        grid-template-columns:1fr;
+    }
+
+}
+
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.cancel-btn {
+    background-color: #f44336; /* red */
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #d32f2f;
+}
+
+.add-payment-btn {
+    background-color: #4caf50; /* green */
+    color: white;
+}
+
+.add-payment-btn:hover {
+    background-color: #388e3c;
+}
+
+/* ================= PAYMENT / CANCEL BUTTONS ================= */
+
+/* Pay button */
+.btn-pay {
+    background-color: #4caf50; /* green */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-pay:hover {
+    background-color: #388e3c; /* darker green */
+    transform: translateY(-1px);
+}
+
+/* Cancel button */
+.btn-cancel {
+    background-color: #f44336; /* red */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-cancel:hover {
+    background-color: #d32f2f; /* darker red */
+    transform: translateY(-1px);
+}
+
+/* Optional: smaller spacing in actions container */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* ================= PROCESS / MARK AS PAID / DELETE BUTTONS ================= */
+
+/* Process button */
+.btn-process {
+    background-color: #4da6a6; /* teal-ish */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-process:hover {
+    background-color: #388e8e; /* darker teal */
+    transform: translateY(-1px);
+}
+
+/* Mark Paid button */
+.btn-mark-paid {
+    background-color: #8ccccc; /* light teal / pastel */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-mark-paid:hover {
+    background-color: #78baba; /* slightly darker */
+    transform: translateY(-1px);
+}
+
+/* Delete button */
+.btn-delete {
+    background-color: #f44336; /* red */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-delete:hover {
+    background-color: #d32f2f; /* darker red */
+    transform: translateY(-1px);
+}
+
+/* ================= ADD PAYMENT BUTTON ================= */
+.btn-add-payment {
+    background-color: #4caf50; /* green, same as pay button */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-add-payment:hover {
+    background-color: #388e3c; /* darker green on hover */
+    transform: translateY(-1px);
+}
+
+
+/* Responsive: stack links on smaller screens */
+@media(max-width:768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar .nav-link {
+        margin: 6px 0;
+    }
+}
+
+.btn-process {
+    background-color: #4CAF50; /* green */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-process:hover {
+    background-color: #45a049;
+}
+
+.status.waiting { color: orange; font-weight: bold; }
+.status.processing { color: blue; font-weight: bold; }
+.status.paid { color: green; font-weight: bold; }
+
+
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    border-bottom: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+}
+
+/* Row Hover Effect */
+tbody tr:hover {
+    background-color: #f0f8ff;
+}
+
+/* Status Labels */
+.status.waiting {
+    color: #ff9800;
+    font-weight: bold;
+}
+.status.processing {
+    color: #2196f3;
+    font-weight: bold;
+}
+.status.paid {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+/* Process Button Styling */
+.btn-process {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #2196f3; /* blue */
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    user-select: none;
+}
+
+.btn-process:hover {
+    background-color: #1976d2;
+}
+
+/* Optional: Disable buttons for other tellers */
+.btn-process.disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+
+/* ================= PROFESSIONAL NAVBAR UPGRADE ================= */
+
+.navbar{
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid #e6eeee;
+}
+
+.nav-links a{
+    position:relative;
+    font-weight:600;
+}
+
+.nav-links a::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-6px;
+    width:0%;
+    height:2px;
+    background:#4da6a6;
+    transition:0.3s;
+}
+
+.nav-links a:hover::after{
+    width:100%;
+}
+
+.nav-links a.active{
+    background:#4da6a6;
+    color:white;
+}
+
+
+
+/* ================= ADD PAYMENT NAV DESIGN ================= */
+
+.payment-card h2{
+    font-size:22px;
+    margin-bottom:15px;
+}
+
+.rfid-box{
+    border:1px dashed #8ccccc;
+    font-weight:500;
+}
+
+
+
+/* ================= MODERN TABLE ================= */
+
+table{
+    border-radius:10px;
+    overflow:hidden;
+}
+
+th{
+    background:#f8fbfb;
+    letter-spacing:0.3px;
+}
+
+td{
+    transition:0.2s;
+}
+
+tbody tr{
+    transition:all .2s ease;
+}
+
+tbody tr:hover{
+    background:#f3fbfb;
+    transform:scale(1.002);
+}
+
+
+
+/* ================= BETTER STATUS BADGES ================= */
+
+.status{
+    padding:5px 12px;
+    border-radius:30px;
+    font-weight:600;
+    font-size:12px;
+}
+
+.status.waiting{
+    background:#fff3cd;
+    color:#856404;
+}
+
+.status.processing{
+    background:#dff3ff;
+    color:#0c5460;
+}
+
+.status.paid{
+    background:#e6f8ee;
+    color:#1c7c3f;
+}
+
+
+
+/* ================= MODERN BUTTONS ================= */
+
+button,
+.btn{
+    font-family:inherit;
+}
+
+.btn{
+    border-radius:8px;
+    padding:5px 5px;
+    font-weight:600;
+    letter-spacing:.2px;
+    transition:all .2s ease;
+}
+
+.btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+
+
+/* ================= PROCESS BUTTON ================= */
+
+.btn-process{
+    background:linear-gradient(135deg,#4da6a6,#3f8f8f);
+}
+
+.btn-process:hover{
+    background:linear-gradient(135deg,#3f8f8f,#357a7a);
+}
+
+
+
+/* ================= MARK PAID ================= */
+
+.btn-mark-paid{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
+.btn-mark-paid:hover{
+    background:linear-gradient(135deg,#16a34a,#15803d);
+}
+
+
+
+/* ================= ADD PAYMENT ================= */
+
+.btn-add-payment{
+    background:linear-gradient(135deg,#4caf50,#388e3c);
+}
+
+.btn-add-payment:hover{
+    background:linear-gradient(135deg,#388e3c,#2e7d32);
+}
+
+
+
+/* ================= DELETE ================= */
+
+.btn-delete{
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+}
+
+.btn-delete:hover{
+    background:linear-gradient(135deg,#dc2626,#b91c1c);
+}
+
+
+
+/* ================= CANCEL ================= */
+
+.btn-cancel{
+    background:linear-gradient(135deg,#f44336,#d32f2f);
+}
+
+.btn-cancel:hover{
+    background:linear-gradient(135deg,#d32f2f,#b71c1c);
+}
+
+
+
+/* ================= PAYMENT FORM UPGRADE ================= */
+
+.amount-box input{
+    transition:0.2s;
+}
+
+.amount-box input:hover{
+    border-color:#8ccccc;
+}
+
+.amount-box input:focus{
+    border-color:#4da6a6;
+    box-shadow:0 0 0 2px rgba(77,166,166,0.15);
+}
+
+
+
+/* ================= CARD HOVER ================= */
+
+.card,
+.stat-card{
+    transition:all .25s ease;
+}
+
+.card:hover,
+.stat-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+
+
+/* ================= SCROLLBAR (PROFESSIONAL TOUCH) ================= */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#cfe9e9;
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#a8d6d6;
+}
+
+
+/* ================= TABLE IMPROVEMENT ================= */
+.table-container table,
+.queue-container table {
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+th {
+    background-color: #f8fbfb; /* soft neutral header */
+    color: #555;
+    padding: 10px 12px;
+    font-weight: 600;
+}
+
+td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+    background-color: #f3fbfb; /* subtle hover */
+    transform: scale(1.002);
+}
+
+/* ================= STATUS BADGES ================= */
+.status {
+    padding: 4px 10px; /* smaller, natural size */
+    font-size: 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.status.waiting { background:#fff3cd; color:#856404; }
+.status.processing { background:#dff3ff; color:#0c5460; }
+.status.paid { background:#e6f8ee; color:#1c7c3f; }
+
+/* ================= ACTION BUTTONS ================= */
+.actions .btn {
+    padding: 5px 10px; /* natural size, not oversized */
+    font-size: 0.85rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.actions .btn-process {
+    background: linear-gradient(135deg,#4da6a6,#3f8f8f);
+    color:#fff;
+}
+.actions .btn-process:hover {
+    background: linear-gradient(135deg,#3f8f8f,#357a7a);
+}
+
+.actions .btn-mark-paid {
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    color:#fff;
+}
+.actions .btn-mark-paid:hover {
+    background: linear-gradient(135deg,#16a34a,#15803d);
+}
+
+.actions .btn-delete {
+    background: linear-gradient(135deg,#ef4444,#dc2626);
+    color:#fff;
+}
+.actions .btn-delete:hover {
+    background: linear-gradient(135deg,#dc2626,#b91c1c);
+}
+
+.actions .btn-add-payment {
+    background: linear-gradient(135deg,#4caf50,#388e3c);
+    color:#fff;
+}
+.actions .btn-add-payment:hover {
+    background: linear-gradient(135deg,#388e3c,#2e7d32);
+}
+
+
+.actions {
+    gap: 8px;
+}
+
+.QueueTrack img {
+    height: 68px; /* adjust size */
+    width: auto;
+    vertical-align: middle;
+}
