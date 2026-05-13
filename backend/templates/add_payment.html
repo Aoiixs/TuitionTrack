@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Payment</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+
+    <div class="nav-left">
+            <h2 class="QueueTrack">
+    <img src="{{ url_for('static', filename='logo/qTrack.png') }}" alt="Logo">
+</h2>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{{ url_for('admin_home') }}" 
+        class="nav-link {{ 'active' if request.path == url_for('admin_home') else '' }}">
+            <i class="bi bi-ui-checks-grid"></i> Dashboard
+        </a>
+
+        <a href="{{ url_for('queue_monitoring') }}" 
+        class="nav-link {{ 'active' if request.path == url_for('queue_monitoring') else '' }}">
+            <i class="bi bi-people-fill"></i> Queue Monitoring
+        </a>
+
+        <a href="{{ url_for('analytics') }}" 
+        class="nav-link {{ 'active' if request.path == url_for('analytics') else '' }}">
+            <i class="bi bi-graph-up-arrow"></i> Analytics
+        </a>
+
+        <a href="{{ url_for('add_payment') }}" 
+        class="nav-link {{ 'active' if request.path == url_for('add_payment') else '' }}">
+            <i class="bi bi-plus-circle"></i> Add Payment
+        </a>
+
+        <a href="{{ url_for('logout') }}" class="nav-link">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="container">
+
+<h1>Add Payment</h1>
+<p class="subtitle">Student information will appear after RFID scan</p>
+
+
+{% if student %}
+
+<div class="payment-card">
+
+<h3>Student Information</h3>
+
+<div class="student-grid">
+
+<div>
+<label>Student Number</label>
+<p>{{ student.student_no | default('N/A') }}</p>
+</div>
+
+<div>
+<label>First Name</label>
+<p>{{ student.student_first_name | default('N/A') }}</p>
+</div>
+
+<div>
+<label>Last Name</label>
+<p>{{ student.student_last_name | default('N/A') }}</p>
+</div>
+
+<div>
+<label>Year</label>
+<p>{{ student.student_year | default('N/A') }}</p>
+</div>
+
+<div>
+<label>Course</label>
+<p>{{ student.student_course | default('N/A') }}</p>
+</div>
+
+</div>
+
+
+<!-- PAYMENT FORM -->
+<form action="{{ url_for('process_payment') }}" method="POST" class="payment-form">
+
+<input type="hidden" name="student_id" value="{{ student.id | default(0) }}">
+<input type="hidden" name="queue_id" value="{{ student.queue_id | default(0) }}">
+
+<label>Amount to Pay</label>
+
+<div class="amount-box">
+<span class="peso">₱</span>
+<input type="number" name="amount" placeholder="0.00" step="0.01" required>
+<button type="submit" class="pay-btn">Add Payment</button>
+</div>
+
+</form>
+
+
+<div class="rfid-box">
+<strong>RFID Scan</strong>
+<p>
+Student data automatically loads after scanning the RFID card.
+Only the payment amount needs to be entered.
+</p>
+</div>
+
+</div>
+
+{% else %}
+
+<div class="payment-card">
+<h3>No student scanned</h3>
+<p>Please scan the student's RFID card.</p>
+</div>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
