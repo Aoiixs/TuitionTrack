@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const socket = io("http://127.0.0.1:5000");
 
 
@@ -127,7 +126,6 @@ socket.on("queue_update", data => {
 document.addEventListener("DOMContentLoaded", () => {
     loadQueue();
 
-=======
 const socket = io("http://127.0.0.1:5000");
 
 
@@ -255,6 +253,4 @@ socket.on("queue_update", data => {
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
     loadQueue();
-
->>>>>>> 46a124b8020f44bc2f9c50a08d93cd40dc405097
 });

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const socket = io("http://127.0.0.1:5000");
 
 const body = document.getElementById("queueBody");
@@ -160,7 +159,6 @@ fetch("/api/queue_logs")
     });
 });
 
-=======
 const socket = io("http://127.0.0.1:5000");
 
 const body = document.getElementById("queueBody");
@@ -322,4 +320,3 @@ fetch("/api/queue_logs")
     });
 });
 
->>>>>>> 46a124b8020f44bc2f9c50a08d93cd40dc405097

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* ================= GLOBAL ================= */
 *{
     box-sizing:border-box;
@@ -956,7 +955,6 @@ tbody tr:hover {
     height: 68px; /* adjust size */
     width: auto;
     vertical-align: middle;
-=======
 /* ================= GLOBAL ================= */
 *{
     box-sizing:border-box;
@@ -1914,5 +1912,4 @@ tbody tr:hover {
     height: 68px; /* adjust size */
     width: auto;
     vertical-align: middle;
->>>>>>> 46a124b8020f44bc2f9c50a08d93cd40dc405097
 }
