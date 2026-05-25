@@ -1,4 +1,3 @@
-
 const socket = io("http://127.0.0.1:5000");
 const todayCollection = {{ today_collection | default(0) | safe }};
 const weeklyCollection = {{ weekly_collection | default(0) | safe }};

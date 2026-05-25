@@ -1,0 +1,26 @@
+import { StyleSheet } from "react-native";
+export default StyleSheet.create({
+    
+  container: { backgroundColor: "#f5f7fa" },
+  subHeader: { textAlign: "center", color: "#888", marginBottom: 15 },
+  mainCard: { backgroundColor: "#9bc4c4", borderRadius: 20, padding: 25, alignItems: "center", marginBottom: 15 },
+  queueNumber: { fontSize: 70, fontWeight: "bold", color: "#fff" },
+  processingText: { color: "#fff", marginTop: 10 },
+  statusBadge: { backgroundColor: "#fff", borderRadius: 20, paddingHorizontal: 15, paddingVertical: 5, marginTop: 5 },
+  statusText: { color: "#333" },
+  infoRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 15 },
+  smallCard: { backgroundColor: "#fff", borderRadius: 10, padding: 15, flex: 1, marginHorizontal: 3, alignItems: "center" },
+  smallTitle: { color: "#888", fontSize: 12, marginBottom: 5 },
+  smallValue: { fontWeight: "bold", fontSize: 14 },
+  liveHeader: { marginTop: 20, fontWeight: "600" },
+  liveCard: { backgroundColor: "#fff", borderRadius: 10, padding: 15, marginTop: 8 },
+  liveQueueNumber: { fontWeight: "bold" },
+  liveStatusText: { color: "#666" },
+  nextText: { color: "green", fontSize: 12 },
+  paymentCard: { backgroundColor: "#fff", borderRadius: 10, padding: 15, marginTop: 15 },
+  paymentHeader: { fontWeight: "bold", marginBottom: 10 },
+  row: { flexDirection: "row", justifyContent: "space-between", marginVertical: 5 },
+  label: { fontWeight: "600" },
+  currentStatus: { backgroundColor: "#9bc4c4", padding: 12, borderRadius: 10, marginTop: 10 },
+  currentStatusText: { color: "#fff", textAlign: "center" },
+});
