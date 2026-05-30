@@ -955,6 +955,7 @@ tbody tr:hover {
     height: 68px; /* adjust size */
     width: auto;
     vertical-align: middle;
+}
 /* ================= GLOBAL ================= */
 *{
     box-sizing:border-box;

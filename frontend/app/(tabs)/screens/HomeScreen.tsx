@@ -1,9 +1,12 @@
 // HomeScreen
-import React, { useEffect, useState } from "react";
-import { Text, View, ScrollView, StyleSheet } from "react-native";
+import React, { useEffect, useState} from "react";
+import {Image} from "react-native";
+import { Text, View, ScrollView, StyleSheet, TouchableOpacity, TextInput} from "react-native";
 import styles from "../../styles/homeStyles";
 import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { io, Socket } from "socket.io-client";
+
 
 type StudentInfo = {
   Teller: string;
@@ -16,9 +19,12 @@ type StudentInfo = {
 export default function HomeScreen() {
   const [queueList, setQueueList] = useState<StudentInfo[]>([]);
   const [processing, setProcessing] = useState<StudentInfo | null>(null);
+  const [showBox, setShowBox] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    const socket: Socket = io("http://192.168.232.44:5000", {
+    const socket: Socket = io("http://192.168.1.51:5000", {
       transports: ["websocket"],
     });
 
@@ -60,8 +66,14 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={{ padding: 15 }}>
-        <Text style={styles.subHeader}>Real-time Queue Monitoring</Text>
+      <View style={{ padding: 15}}>
+        <Text style={styles.subHeader}>
+           <Image
+          source={require('../../../..//frontend/assets/images/Tqueue.logo.png')}
+            style={styles.logo}
+            />
+          </Text>
+
 
         {processing && (
           <View style={styles.mainCard}>
@@ -115,9 +127,71 @@ export default function HomeScreen() {
             </View>
           ))}
 
+          <TouchableOpacity onPress={()=> setShowBox(!showBox)}>
+            <View style={styles.containers}>
+              <MaterialCommunityIcons
+              name="brain"
+              size={35}
+              color="dark-gray"
+              />
+            </View>
+          </TouchableOpacity>        
+          </View>
+          
+          {showBox &&(
+            <View style={styles.showBox}>
+            <View style={styles.headerRow}>
+            <View style={styles.activeDot}/>
+            <Text style={styles.header1}>AI Assistant</Text>
+            </View>
+           
+            {/* <Text style={styles.activeM}>Active Monitoring</Text> */}
+            
 
-      </View>
-    </ScrollView>
-  );
+            <View style={styles.chatContainer}>
+              {messages.map((msg, index)=> (
+                <Text key = {index}>{msg}</Text>
+              ))}
+            </View>
+
+
+            {/* <ScrollView>
+              {messages.map((msg, index)=>(
+                <Text key = {index}> {msg}</Text>
+              ))}
+            </ScrollView> */}
+            <View style={styles.container1}>
+            <View style={styles.input}>
+              <TextInput
+              placeholder="Send a message"
+              value={message}
+              onChangeText={setMessage}
+              style={styles.chatbox}
+              />
+
+              <TouchableOpacity
+              style={styles.send}
+              onPress={() => {
+                if(message.trim() === "") return;
+                setMessages([...messages, message]);
+                setMessage("");
+              }}
+              >
+            
+            <Ionicons
+            style={styles.send}
+              name="paper-plane"
+              size={24}
+              color={"#3467f4"}
+              />
+              </TouchableOpacity>
+            </View>
+            </View>
+  
+            </View>
+
+)}
+ 
+</ScrollView>
+);
 }
-

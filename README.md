@@ -37,8 +37,9 @@ plywood 1/4
 
 Construction Tools:
 popsicles
-illustration
+illustration board.
 foamboard.
+acrylic glass.
 
 
 
