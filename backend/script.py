@@ -2,7 +2,11 @@ import requests
 import time
 import serial
 
+<<<<<<< HEAD
 arduino = serial.Serial('COM6', 9600, timeout=1)
+=======
+arduino = serial.Serial('COM7', 9600, timeout=1)
+>>>>>>> aa47d814d3cdcaacf49c30609188407bbe78f618
 url = "http://127.0.0.1:5000/process-data"
 
 while True:

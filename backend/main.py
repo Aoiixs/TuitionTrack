@@ -1,9 +1,11 @@
 from flask import Flask, request, render_template, redirect, url_for, jsonify, session, flash
 from flask_socketio import SocketIO
+from ai_backend import ai_bp
 import datetime
 import pymysql
 
 app = Flask(__name__)
+app.register_blueprint(ai_bp)
 app.secret_key = "aoixs"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -653,4 +655,4 @@ def handle_disconnect():
 
 # ================= RUN SERVER =================
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000 )
