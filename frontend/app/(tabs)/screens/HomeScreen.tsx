@@ -3,6 +3,7 @@ import React, { useEffect, useState} from "react";
 import {Image} from "react-native";
 import { Text, View, ScrollView, StyleSheet, TouchableOpacity, TextInput} from "react-native";
 import styles from "../../styles/homeStyles";
+import { SendtoAI } from "./serviceAI";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { io, Socket } from "socket.io-client";
@@ -23,8 +24,21 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
 
+  const handleSend= async ()=>{
+    if(!message.trim())return;
+    const data = await SendtoAI(message);
+
+    setMessages((prev)=>[
+      ...prev,
+      data.reply
+    ]);
+    setMessage("");
+    
+  };
+
+
   useEffect(() => {
-    const socket: Socket = io("http://192.168.1.51:5000", {
+    const socket: Socket = io("http://192.168.1.8:5000", {
       transports: ["websocket"],
     });
 
@@ -145,24 +159,22 @@ export default function HomeScreen() {
             <Text style={styles.header1}>AI Assistant</Text>
             </View>
            
-            {/* <Text style={styles.activeM}>Active Monitoring</Text> */}
+            <Text style={styles.activeM}>Active Monitoring</Text>
             
 
-            <View style={styles.chatContainer}>
+            <ScrollView style={styles.chatContainer}>
               {messages.map((msg, index)=> (
-                <Text key = {index}>{msg}</Text>
+                <View key = {index} style={styles.reply}>
+                  <Text>{msg}</Text>
+                  </View>
               ))}
-            </View>
+            </ScrollView>
 
-
-            {/* <ScrollView>
-              {messages.map((msg, index)=>(
-                <Text key = {index}> {msg}</Text>
-              ))}
-            </ScrollView> */}
             <View style={styles.container1}>
             <View style={styles.input}>
               <TextInput
+
+
               placeholder="Send a message"
               value={message}
               onChangeText={setMessage}
@@ -171,17 +183,25 @@ export default function HomeScreen() {
 
               <TouchableOpacity
               style={styles.send}
-              onPress={() => {
-                if(message.trim() === "") return;
-                setMessages([...messages, message]);
+
+              onPress={async () =>{
+                if (message.trim() ==="") return;
+                const userMessage = message;
                 setMessage("");
+
+                setMessages((prev) => [...prev, "You: " + userMessage]);
+                const data = await SendtoAI(userMessage);
+
+                setMessages((prev) => [...prev, "AI: " + data.reply]);
               }}
+             
+              
               >
             
             <Ionicons
             style={styles.send}
               name="paper-plane"
-              size={24}
+              size={30}
               color={"#3467f4"}
               />
               </TouchableOpacity>

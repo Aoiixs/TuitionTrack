@@ -19,7 +19,7 @@ export default function PaymentScreen() {
   const [currentPayment, setCurrentPayment] = useState<StudentPayment | null>(null);
 
   useEffect(() => {
-    const socket: Socket = io("http://192.168.1.51:5000", {
+    const socket: Socket = io("http://192.168.1.8:5000", {
       transports: ["websocket"],
     });
 
