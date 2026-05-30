@@ -1,6 +1,6 @@
 export const SendtoAI = async(message) =>{
     const response = await fetch(
-        "http://192.168.1.8:8081/ai-chat",
+        "http://192.168.1.8:5000/ai-chat",
         {
             method: "POST",
             headers: {

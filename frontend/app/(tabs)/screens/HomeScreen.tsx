@@ -24,17 +24,6 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
 
-  const handleSend= async ()=>{
-    if(!message.trim())return;
-    const data = await SendtoAI(message);
-
-    setMessages((prev)=>[
-      ...prev,
-      data.reply
-    ]);
-    setMessage("");
-    
-  };
 
 
   useEffect(() => {
@@ -164,8 +153,12 @@ export default function HomeScreen() {
 
             <ScrollView style={styles.chatContainer}>
               {messages.map((msg, index)=> (
-                <View key = {index} style={styles.reply}>
-                  <Text>{msg}</Text>
+                <View key = {index} style={[styles.messageBox, msg.sender === "user"
+                  ? styles.userMessage
+                  : styles.aiMessage,
+                ]}
+                >
+                  <Text>{msg.text}</Text>
                   </View>
               ))}
             </ScrollView>
@@ -189,15 +182,12 @@ export default function HomeScreen() {
                 const userMessage = message;
                 setMessage("");
 
-                setMessages((prev) => [...prev, "You: " + userMessage]);
+                setMessages((prev) => [...prev, { text: userMessage, sender: "user"}]);
                 const data = await SendtoAI(userMessage);
 
-                setMessages((prev) => [...prev, "AI: " + data.reply]);
+                setMessages((prev) => [...prev, {text: data.reply, sender: "ai"}]);
               }}
-             
-              
               >
-            
             <Ionicons
             style={styles.send}
               name="paper-plane"

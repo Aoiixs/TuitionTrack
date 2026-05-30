@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify,request 
-import requests
 from google import genai
 from dotenv import load_dotenv
 import datetime

@@ -52,6 +52,11 @@ export default StyleSheet.create({
   headerRow:{flexDirection: "row", alignItems: "center"},
   logo:{width: "30%", height: 60, },
 
+  messageBox:{maxWidth: "75%", padding: 10, borderRadius: 12, marginVertical: 5},
+  userMessage: {alignSelf: "center", backgroundColor: "#e0e0e0", marginLeft: 250},
+  aiMessage: {alignSelf: "flex-start", backgroundColor: "#e0e0e0"},
+
+
   chatContainer:{width: 320, alignSelf: "center",  height: 270,backgroundColor: "#f5f5f5", padding: 20,
   marginTop: 20, borderRadius: 10},
   send:{justifyContent: "center", alignItems: "center", marginLeft: -25, marginBottom: 8 },
