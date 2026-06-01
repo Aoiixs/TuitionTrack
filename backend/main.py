@@ -15,7 +15,7 @@ def get_db_connection():
     return pymysql.connect(
         host="localhost",
         user="root",
-        password="lhuzxcu2375",
+        password="Flaskframework",
         database="school_queue_system",
         cursorclass=pymysql.cursors.DictCursor
     )

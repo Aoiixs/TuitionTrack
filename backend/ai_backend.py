@@ -1,9 +1,18 @@
 from flask import Blueprint, jsonify,request 
-import requests
+import pymysql
 from google import genai
 from dotenv import load_dotenv
 import datetime
 import os
+
+def get_db_connection():
+    return pymysql.connect(
+        host = "localhost",
+        user= "root",
+        password = "Flaskframework",
+        database = "school_queue_system",
+        cursorclass = pymysql.cursors.DictCursor
+    )
 
 load_dotenv()
 
@@ -13,14 +22,80 @@ client = genai.Client(api_key=gemini_api_key)
 
 
 
+
+
 @ai_bp.route("/ai-chat", methods = ["POST"])
 def ai_chat():
     data = request.get_json()
     message = data.get("message", "")
-
     current_date = datetime.datetime.now().strftime("%B %d, %Y")
     current_time = datetime.datetime.now().strftime("%I:%M %p")
 
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Waiting Students
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE LOWER(COALESCE(status,'waiting')) = 'waiting'
+    """)
+    waiting_count = cursor.fetchone()["total"]
+
+    # Processing students
+    cursor.execute("""
+        SELECT
+            q.queue_number,
+            s.student_first_name,
+            s.student_last_name
+        FROM queue_logs q
+        JOIN students s ON q.student_id = s.id
+        WHERE LOWER(COALESCE(q.status,''))='processing'
+    """)
+    processing_students = cursor.fetchall()
+
+    # Paid today
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM payments
+        WHERE DATE(payment_date)=CURDATE()
+    """)
+    paid_today = cursor.fetchone()["total"] 
+
+    cursor.execute("""
+    SELECT DISTINCT
+        q.queue_number,
+        s.student_first_name,
+        s.student_last_name
+    FROM payments p
+    JOIN students s ON p.student_id = s.id
+    JOIN queue_logs q ON p.queue_id = q.id
+    WHERE DATE(p.payment_date)=CURDATE()
+""")
+    paid_students = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    if processing_students:
+        processing_text = "\n".join([
+            f"Queue #{row['queue_number']} - "
+            f"{row['student_first_name']} {row['student_last_name']}"
+            for row in processing_students
+    ])
+    else:
+        processing_text = "No student currently being processed"
+
+    if paid_students:
+        paid_text = "\n".join([
+        f"Queue #{row['queue_number']} - "
+        f"{row['student_first_name']} {row['student_last_name']}"
+        for row in paid_students
+    ])
+    else:
+        paid_text = "No students have paid today."
+
+        
 
     prompt = f"""
     You are QueueTrack AI Assistant.
@@ -56,6 +131,20 @@ def ai_chat():
     - Help with technical questions
     - Be friendly and professional
 
+    REAL-TIME QUEUE DATA
+
+    Students Waiting:
+    {waiting_count}
+    Currently Processing:
+    {processing_text}
+    Students Paid Today:
+    {paid_today}
+    Students Who's Paid:
+    {paid_text}
+
+    IMPORTANT:
+    Use the real-time queue data above when answering queue-related questions.
+    Do not invent queue information.
 
     Admin Message:
     {message}
@@ -64,9 +153,6 @@ def ai_chat():
         model = "gemini-2.5-flash",
         contents=prompt
     )
-
-
-    
     reply = response.text
 
     reply = reply.replace("**", "")
@@ -77,3 +163,72 @@ def ai_chat():
     "reply": reply
 })
 
+
+
+
+#AI Prediction in Student mobile app
+# ================= AI PREDICTION =================
+@ai_bp.route("/ai-prediction", methods=["GET"])
+def ai_prediction():
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE LOWER(COALESCE(status,'waiting'))='waiting'
+    """)
+    waiting_count = cursor.fetchone()["total"]
+
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE LOWER(COALESCE(status,''))='processing'
+    """)
+    processing_count = cursor.fetchone()["total"]
+
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM payments
+        WHERE DATE(payment_date)=CURDATE()
+    """)
+    paid_today = cursor.fetchone()["total"]
+
+    cursor.close()
+    conn.close()
+
+    prompt = f"""
+    You are QueueTrack AI Prediction Engine.
+
+    Analyze the queue situation below and estimate
+    the waiting time for students.
+
+    Queue Data:
+    - Waiting Students: {waiting_count}
+    - Currently Processing: {processing_count}
+    - Students Paid Today: {paid_today}
+
+    Assume the average transaction time is between
+    2 and 5 minutes.
+
+    Return ONLY:
+
+    Estimated Waiting Time: __ minutes
+
+    Short Explanation: __
+    """
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt
+    )
+
+    prediction = response.text
+
+    prediction = prediction.replace("*", "")
+    prediction = prediction.replace("#", "")
+
+    return jsonify({
+        "prediction": prediction
+    })

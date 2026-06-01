@@ -22,9 +22,10 @@ export default function HomeScreen() {
   const [showBox, setShowBox] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
+  
 
   useEffect(() => {
-    const socket: Socket = io("http://192.168.1.51:5000", {
+    const socket: Socket = io("http://192.168.11.142:5000", {
       transports: ["websocket"],
     });
 
