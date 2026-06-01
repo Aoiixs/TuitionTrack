@@ -27,16 +27,22 @@ function addRowPerTeller(data){
 
     const studentCount = data.RFID_Count || 0;
     const amount_paid = Number(data.amount_paid || 0);
-    const timestamp = data.Timestamp || "";
+    const timestamp = new Date (data.Timestamp).toLocaleString("en-PH", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
     const status = (data.Status || "waiting").toLowerCase();
 
     // UPDATE EXISTING ROW
     if(rows[tellerId][queueNum]){
         const row = rows[tellerId][queueNum];
-        row.querySelector(".status").textContent = status.toUpperCase();
+        row.querySelector(".status").textContent = status.toLowerCase();
         row.querySelector(".status").className = `status ${status}`;
         row.querySelector(".amount").textContent = formatMoney(amount_paid);
-        row.querySelector(".balance").textContent = data.Student_Balance || 0;
+        row.querySelector(".balance").textContent =  data.Student_Balance || 0; 
         row.querySelector(".timestamp").textContent = timestamp;
         row.querySelector(".id-number").textContent = data.Id_Number || "";
         return;
@@ -50,12 +56,12 @@ function addRowPerTeller(data){
         <td>#${queueNum}</td>
         <td>${data.Name} ${data.Last_Name}<br><span class="subtext-id">${data.Id_Number}</span></td>
 
-        <td><span class="status ${status}">${status.toUpperCase()}</span></td>
+        <td><span class="status ${status}">${status.toLowerCase()}</span></td>
   
     
         <td class="amount">${formatMoney(amount_paid)}</td>
         <td class="balance">${data.Student_Balance || 0}</td>
-        <td class="timestamp">${timestamp}</td>
+        <td class="timestamp">${(timestamp).toLocaleString("en-PH")}</td>
         <td></td>
     `;
 

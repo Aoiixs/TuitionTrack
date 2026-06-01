@@ -47,7 +47,13 @@ function addOrUpdateRow(data){
         <td>${data.Student_Year}<br><span class="subtext-year">${data.Student_Course}</span></td>
         <td><span class="status ${status}">${data.Status || "Waiting"}</span></td>
         <td class="amount">₱ ${amount.toLocaleString()}</td>
-        <td>${data.Timestamp}</td>
+        <td>${new Date(data.Timestamp).toLocaleString("en-PH", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        })}</td>
         <td class="actions"></td>
     `;
     const actions = row.querySelector(".actions");
