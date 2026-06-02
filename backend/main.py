@@ -357,6 +357,8 @@ def delete_queue():
 # ================= ADD PAYMENT =================
 @app.route("/add_payment")
 def add_payment():
+    
+    queue_id = request.args.get("queue_id")
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -366,10 +368,8 @@ def add_payment():
         SELECT s.*, q.id AS queue_id, q.queue_number, q.teller, q.created_at
         FROM queue_logs q
         JOIN students s ON q.student_id = s.id
-        WHERE q.status = 'Waiting'
-        ORDER BY q.queue_number ASC
-        LIMIT 1
-    """)
+        WHERE q.id = %s
+    """, (queue_id, ))
 
     student = cursor.fetchone()
 
@@ -389,6 +389,7 @@ def add_payment():
 
     # Emit real-time update
     socketio.emit("queue_update", {
+        "Queue_ID": student["queue_id"],
         "Queue": student["queue_number"],
         "Teller": student.get("teller", "N/A"),
         "Id_Number": student["student_no"],
@@ -396,16 +397,20 @@ def add_payment():
         "Last_Name": student["student_last_name"],
         "Student_Year": student["student_year"],
         "Student_Course": student["student_course"],
-        "Status": "Processing",
+        "Status": "waiting",
         "Student_Balance": float(student["student_balance"]),
         "amount_paid": 0,
         "Timestamp": student["created_at"].strftime("%Y-%m-%d %H:%M:%S")
     })
+    print("QUEUE ID: ", request.args.get("queue_id"))
+
 
     cursor.close()
     conn.close()
 
     return render_template("add_payment.html", student=student)
+
+
 # ================= PROCESS PAYMENT =================
 @app.route("/process_payment", methods=["POST"])
 def process_payment():

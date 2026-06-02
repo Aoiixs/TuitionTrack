@@ -66,7 +66,6 @@ def ai_chat():
 
     
     reply = response.text
-
     reply = reply.replace("**", "")
     reply = reply.replace("*", "")
     reply = reply.replace("##", "")
