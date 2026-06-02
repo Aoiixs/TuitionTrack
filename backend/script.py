@@ -4,6 +4,10 @@ import serial
 
 arduino = serial.Serial('COM7', 9600, timeout=1)
 
+<<<<<<< HEAD
+=======
+arduino = serial.Serial('COM7', 9600, timeout=1)
+>>>>>>> 4dc3ef4199ad441a873fc35eb3b6fdcb6d6b7724
 
 url = "http://127.0.0.1:5000/process-data"
 

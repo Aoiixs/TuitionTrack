@@ -231,7 +231,7 @@ export default function HomeScreen() {
               <View style={styles.activeDot} />
               <Text style={styles.header1}>AI Assistant</Text>
             </View>
-
+  
             <Text style={styles.activeM}>Active Monitoring</Text>
 
             <ScrollView style={styles.chatContainer}>

@@ -89,6 +89,7 @@ function addOrUpdateRow(data){
             window.location.href = `/add_payment?queue_id=${id}`;
         });
         actions.appendChild(addPaymentBtn);
+        console.log("Queue ID: ", id)
     }
 
     // ================= PROCESS BUTTON =================

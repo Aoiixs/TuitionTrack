@@ -151,7 +151,6 @@ def ai_chat():
         contents=prompt
     )
     reply = response.text
-
     reply = reply.replace("**", "")
     reply = reply.replace("*", "")
     reply = reply.replace("##", "")
