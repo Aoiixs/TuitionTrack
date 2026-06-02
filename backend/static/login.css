@@ -22,21 +22,17 @@ body{
     text-align:center;
 }
 
-.icon{
-    width:60px;
-    height:60px;
-    background:#9fc8c6;
-    border-radius:50%;
+.icon img{
+    width:200px;
+    height:110px;
     display:flex;
     justify-content:center;
     align-items:center;
     margin:auto;
     font-size:25px;
+    background: none;
 }
 
-h2{
-    margin-top:15px;
-}
 
 .subtitle{
     color:gray;
@@ -95,4 +91,3 @@ button{
     font-size:16px;
     cursor: pointer;
 }
-
