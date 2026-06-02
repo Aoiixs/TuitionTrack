@@ -69,7 +69,7 @@ function addOrUpdateRow(data){
             fetch(`/mark_as_paid/${id}`, { method: "POST" })
             .then(res => {
                 if(res.ok){
-                    row.querySelector(".status").textContent = "Paid";
+                    row.querySelector(".status").textContent = "paid";
                     row.querySelector(".status").className = "status paid";
                     actions.innerHTML = "";
                     updateDashboardCounts();
@@ -81,7 +81,7 @@ function addOrUpdateRow(data){
     }
 
     // ================= ADD PAYMENT =================
-    if(status === "waiting" || status === "processing"){
+    if(status === "waiting"){
         const addPaymentBtn = document.createElement("button");
         addPaymentBtn.textContent = "Add Payment";
         addPaymentBtn.className = "btn-add-payment";
@@ -92,16 +92,16 @@ function addOrUpdateRow(data){
         console.log("Queue ID: ", id)
     }
 
-    // ================= PROCESS BUTTON =================
-    if(status === "waiting"){
-        const processBtn = document.createElement("button");
-        processBtn.textContent = "Process";
-        processBtn.className = "btn-process";
-        processBtn.addEventListener("click", () => {
-            socket.emit("process_queue", { student_id: id });
-        });
-        actions.appendChild(processBtn);
-    }
+    // // ================= PROCESS BUTTON =================
+    // if(status === "waiting"){
+    //     const processBtn = document.createElement("button");
+    //     processBtn.textContent = "Process";
+    //     processBtn.className = "btn-process";
+    //     processBtn.addEventListener("click", () => {
+    //         socket.emit("process_queue", { student_id: id });
+    //     });
+    //     actions.appendChild(processBtn);
+    // }
 
     // ================= DELETE BUTTON =================
     if(status !== "paid"){
@@ -130,11 +130,7 @@ function addOrUpdateRow(data){
     }
 
     // ================= ADD ROW TO TABLE =================
-    if(status === "processing"){
-        body.prepend(row);
-    } else {
-        body.appendChild(row);
-    }
+    body.appendChild(row);
 
     students[id] = row;
     updateDashboardCounts();
@@ -158,7 +154,7 @@ socket.on("queue_update", (data) => {
 fetch("/api/queue_logs")
 .then(res => res.json())
 .then(dataList => {
-    dataList.sort((a,b) => b.Queue - a.Queue);
+    dataList.sort((a,b) => a.Queue - b.Queue);
     dataList.forEach(data => {
         if((data.Status || "").toLowerCase() !== "cancelled"){
             addOrUpdateRow(data);
