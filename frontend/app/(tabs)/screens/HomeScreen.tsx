@@ -1,31 +1,40 @@
 // HomeScreen
-import React, { useEffect, useState} from "react";
-import {Image} from "react-native";
-import { Text, View, ScrollView, StyleSheet, TouchableOpacity, TextInput} from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import styles from "../../styles/homeStyles";
+import { SendtoAI } from "./serviceAI";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { io, Socket } from "socket.io-client";
-
 
 type StudentInfo = {
   Teller: string;
   Queue: string;
   Status: string;
-  Student_Balance: number; // student balance
+  Student_Balance: number;
   Student_amount_pay: number;
+};
+
+type AIPrediction = {
+  waiting_students: number;
+  avg_time_per_student: number;
+  estimated_waiting_time_minutes: number;
 };
 
 export default function HomeScreen() {
   const [queueList, setQueueList] = useState<StudentInfo[]>([]);
   const [processing, setProcessing] = useState<StudentInfo | null>(null);
+
+  const [aiPrediction, setAiPrediction] = useState<AIPrediction | null>(null);
+
   const [showBox, setShowBox] = useState(false);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<string[]>([]);
-  
+  const [messages, setMessages] = useState<any[]>([]);
 
+  // ================= SOCKET =================
   useEffect(() => {
-    const socket: Socket = io("http://192.168.11.142:5000", {
+    const socket: Socket = io("http://192.168.1.14:5000", {
       transports: ["websocket"],
     });
 
@@ -36,24 +45,25 @@ export default function HomeScreen() {
         Teller: raw.Teller || "N/A",
         Queue: raw.Queue || "",
         Status: (raw.Status || "Waiting").toLowerCase(),
-        Student_Balance: Number(raw.Student_Balance ?? 0), 
+        Student_Balance: Number(raw.Student_Balance ?? 0),
+        Student_amount_pay: raw.Student_amount_pay ?? 0,
       };
 
       if (!info.Queue) return;
 
- 
       setQueueList((prev) => {
         const index = prev.findIndex((s) => s.Queue === info.Queue);
         let newList;
+
         if (index >= 0) {
           newList = [...prev];
           newList[index] = info;
         } else {
           newList = [...prev, info];
         }
+
         return newList.sort((a, b) => Number(a.Queue) - Number(b.Queue));
       });
-
 
       setProcessing((prev) => {
         if (info.Status === "processing") return info;
@@ -65,17 +75,37 @@ export default function HomeScreen() {
     return () => socket.disconnect();
   }, []);
 
+  // ================= AI PREDICTION FETCH =================
+  useEffect(() => {
+    const fetchPrediction = async () => {
+      try {
+        const res = await fetch("http://192.168.1.14:5000/ai-prediction");
+        const data = await res.json();
+        setAiPrediction(data);
+      } catch (err) {
+        console.log("AI prediction error:", err);
+      }
+    };
+
+    fetchPrediction();
+
+    // refresh every 5 seconds (real-time feel)
+    const interval = setInterval(fetchPrediction, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
-      <View style={{ padding: 15}}>
+      <View style={{ padding: 15 }}>
         <Text style={styles.subHeader}>
-           <Image
-          source={require('../../../..//frontend/assets/images/Tqueue.logo.png')}
+          <Image
+            source={require("../../../..//frontend/assets/images/Tqueue.logo.png")}
             style={styles.logo}
-            />
-          </Text>
+          />
+        </Text>
 
-
+        {/* ================= PROCESSING CARD ================= */}
         {processing && (
           <View style={styles.mainCard}>
             <Ionicons name="time-outline" size={35} color="#fff" />
@@ -90,17 +120,27 @@ export default function HomeScreen() {
           </View>
         )}
 
-  
+        {/* ================= INFO ROW ================= */}
         {processing && (
           <View style={styles.infoRow}>
             <View style={styles.smallCard}>
               <Text style={styles.smallTitle}>Estimated Wait</Text>
-              <Text style={styles.smallValue}>{queueList.length * 10} seconds</Text>
+
+              {/* 🔥 AI PREDICTION HERE */}
+              <Text style={styles.smallValue}>
+                {aiPrediction
+                  ? `${aiPrediction.estimated_waiting_time_minutes.toFixed(1)} min`
+                  : "Loading..."}
+              </Text>
             </View>
+
             <View style={styles.smallCard}>
               <Text style={styles.smallTitle}>Amount to Pay</Text>
-              <Text style={styles.smallValue}>₱ {processing.Student_Balance.toFixed(2)}</Text>
+              <Text style={styles.smallValue}>
+                ₱ {processing.Student_Balance.toFixed(2)}
+              </Text>
             </View>
+
             <View style={styles.smallCard}>
               <Text style={styles.smallTitle}>Teller</Text>
               <Text style={styles.smallValue}>{processing.Teller}</Text>
@@ -108,7 +148,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-   
+        {/* ================= LIVE QUEUE ================= */}
         <Text style={styles.liveHeader}>🔴 Live Queue Monitor</Text>
 
         {processing && (
@@ -128,71 +168,74 @@ export default function HomeScreen() {
             </View>
           ))}
 
-          <TouchableOpacity onPress={()=> setShowBox(!showBox)}>
-            <View style={styles.containers}>
-              <MaterialCommunityIcons
-              name="brain"
-              size={35}
-              color="dark-gray"
-              />
-            </View>
-          </TouchableOpacity>        
+        {/* ================= AI BUTTON ================= */}
+        <TouchableOpacity onPress={() => setShowBox(!showBox)}>
+          <View style={styles.containers}>
+            <MaterialCommunityIcons name="brain" size={35} color="dark-gray" />
           </View>
-          
-          {showBox &&(
-            <View style={styles.showBox}>
+        </TouchableOpacity>
+
+        {/* ================= CHAT BOX ================= */}
+        {showBox && (
+          <View style={styles.showBox}>
             <View style={styles.headerRow}>
-            <View style={styles.activeDot}/>
-            <Text style={styles.header1}>AI Assistant</Text>
-            </View>
-           
-            {/* <Text style={styles.activeM}>Active Monitoring</Text> */}
-            
-
-            <View style={styles.chatContainer}>
-              {messages.map((msg, index)=> (
-                <Text key = {index}>{msg}</Text>
-              ))}
+              <View style={styles.activeDot} />
+              <Text style={styles.header1}>AI Assistant</Text>
             </View>
 
+            <Text style={styles.activeM}>Active Monitoring</Text>
 
-            {/* <ScrollView>
-              {messages.map((msg, index)=>(
-                <Text key = {index}> {msg}</Text>
+            <ScrollView style={styles.chatContainer}>
+              {messages.map((msg, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.messageBox,
+                    msg.sender === "user" ? styles.userMessage : styles.aiMessage,
+                  ]}
+                >
+                  <Text>{msg.text}</Text>
+                </View>
               ))}
-            </ScrollView> */}
+            </ScrollView>
+
             <View style={styles.container1}>
-            <View style={styles.input}>
-              <TextInput
-              placeholder="Send a message"
-              value={message}
-              onChangeText={setMessage}
-              style={styles.chatbox}
-              />
+              <View style={styles.input}>
+                <TextInput
+                  placeholder="Send a message"
+                  value={message}
+                  onChangeText={setMessage}
+                  style={styles.chatbox}
+                />
 
-              <TouchableOpacity
-              style={styles.send}
-              onPress={() => {
-                if(message.trim() === "") return;
-                setMessages([...messages, message]);
-                setMessage("");
-              }}
-              >
-            
-            <Ionicons
-            style={styles.send}
-              name="paper-plane"
-              size={24}
-              color={"#3467f4"}
-              />
-              </TouchableOpacity>
-            </View>
-            </View>
-  
-            </View>
+                <TouchableOpacity
+                  style={styles.send}
+                  onPress={async () => {
+                    if (message.trim() === "") return;
 
-)}
- 
-</ScrollView>
-);
+                    const userMessage = message;
+                    setMessage("");
+
+                    setMessages((prev) => [
+                      ...prev,
+                      { text: userMessage, sender: "user" },
+                    ]);
+
+                    const data = await SendtoAI(userMessage);
+
+                    setMessages((prev) => [
+                      ...prev,
+                      { text: data.reply, sender: "ai" },
+                    ]);
+                  }}
+                >
+                  <Ionicons name="paper-plane" size={30} color={"#3467f4"} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
 }

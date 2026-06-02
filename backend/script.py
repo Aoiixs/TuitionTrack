@@ -3,6 +3,8 @@ import time
 import serial
 
 arduino = serial.Serial('COM7', 9600, timeout=1)
+
+
 url = "http://127.0.0.1:5000/process-data"
 
 while True:

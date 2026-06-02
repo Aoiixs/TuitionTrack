@@ -16,7 +16,10 @@ export default function PaymentHistoryScreen() {
   const [totalPaid, setTotalPaid] = useState<number>(0);
 
   useEffect(() => {
-    const API_URL = "http://192.168.11.142:5000";
+
+    
+
+    const API_URL = "http://192.168.1.14:5000";
 
 
     const fetchPaymentHistory = async () => {

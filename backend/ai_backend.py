@@ -21,9 +21,6 @@ gemini_api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=gemini_api_key)
 
 
-
-
-
 @ai_bp.route("/ai-chat", methods = ["POST"])
 def ai_chat():
     data = request.get_json()
@@ -163,10 +160,6 @@ def ai_chat():
     "reply": reply
 })
 
-
-
-
-#AI Prediction in Student mobile app
 # ================= AI PREDICTION =================
 @ai_bp.route("/ai-prediction", methods=["GET"])
 def ai_prediction():
@@ -174,61 +167,46 @@ def ai_prediction():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # waiting students
     cursor.execute("""
         SELECT COUNT(*) AS total
         FROM queue_logs
         WHERE LOWER(COALESCE(status,'waiting'))='waiting'
     """)
-    waiting_count = cursor.fetchone()["total"]
+    waiting = cursor.fetchone()["total"]
 
+    # processing or completed today
     cursor.execute("""
         SELECT COUNT(*) AS total
         FROM queue_logs
-        WHERE LOWER(COALESCE(status,''))='processing'
+        WHERE DATE(created_at)=CURDATE()
+        AND status IN ('processing','paid')
     """)
-    processing_count = cursor.fetchone()["total"]
+    processed = cursor.fetchone()["total"]
 
+    # payments today
     cursor.execute("""
         SELECT COUNT(*) AS total
         FROM payments
         WHERE DATE(payment_date)=CURDATE()
     """)
-    paid_today = cursor.fetchone()["total"]
+    payments_today = cursor.fetchone()["total"]
 
     cursor.close()
     conn.close()
 
-    prompt = f"""
-    You are QueueTrack AI Prediction Engine.
+    # =================  AI FORMULA =================
+    if processed == 0:
+        avg_time_per_student = 2  
+    else:
+        avg_time_per_student = payments_today / processed
+        if avg_time_per_student < 1:
+            avg_time_per_student = 1
 
-    Analyze the queue situation below and estimate
-    the waiting time for students.
-
-    Queue Data:
-    - Waiting Students: {waiting_count}
-    - Currently Processing: {processing_count}
-    - Students Paid Today: {paid_today}
-
-    Assume the average transaction time is between
-    2 and 5 minutes.
-
-    Return ONLY:
-
-    Estimated Waiting Time: __ minutes
-
-    Short Explanation: __
-    """
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
-
-    prediction = response.text
-
-    prediction = prediction.replace("*", "")
-    prediction = prediction.replace("#", "")
+    estimated_wait = waiting * avg_time_per_student
 
     return jsonify({
-        "prediction": prediction
+        "waiting_students": waiting,
+        "avg_time_per_student": round(avg_time_per_student, 2),
+        "estimated_waiting_time_minutes": round(estimated_wait, 2)
     })
