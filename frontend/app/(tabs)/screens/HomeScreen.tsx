@@ -1,4 +1,3 @@
-// HomeScreen
 import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
 import { Text, View, ScrollView, TouchableOpacity, TextInput } from "react-native";
@@ -8,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { io, Socket } from "socket.io-client";
 
+// ================= TYPES =================
 type StudentInfo = {
   Teller: string;
   Queue: string;
@@ -23,22 +23,55 @@ type AIPrediction = {
 };
 
 export default function HomeScreen() {
+
   const [queueList, setQueueList] = useState<StudentInfo[]>([]);
   const [processing, setProcessing] = useState<StudentInfo | null>(null);
 
-  const [aiPrediction, setAiPrediction] = useState<AIPrediction | null>(null);
+  // SAFE DEFAULT
+  const [aiPrediction, setAiPrediction] = useState<AIPrediction>({
+    waiting_students: 0,
+    avg_time_per_student: 0,
+    estimated_waiting_time_minutes: 0,
+  });
 
   const [showBox, setShowBox] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
 
-  // ================= SOCKET =================
+  // ================= POSITION CALC =================
+  const getPosition = () => {
+    if (!processing) return null;
+
+    const sorted = [...queueList].sort(
+      (a, b) => Number(a.Queue) - Number(b.Queue)
+    );
+
+    const index = sorted.findIndex((s) => s.Queue === processing.Queue);
+
+    return index >= 0 ? index + 1 : null;
+  };
+
+  // ================= SOCKET + AI =================
   useEffect(() => {
+
     const socket: Socket = io("http://192.168.1.14:5000", {
       transports: ["websocket"],
     });
 
+    let lastUpdate = 0;
+
+    const fetchPrediction = async () => {
+      try {
+        const res = await fetch("http://192.168.1.14:5000/ai-prediction");
+        const data = await res.json();
+        setAiPrediction(data);
+      } catch (err) {
+        console.log("AI prediction error:", err);
+      }
+    };
+
     socket.on("queue_update", (data: any) => {
+
       const raw: any = data.payload || data;
 
       const info: StudentInfo = {
@@ -70,34 +103,31 @@ export default function HomeScreen() {
         if (prev?.Queue === info.Queue && info.Status !== "processing") return null;
         return prev;
       });
+
+      // debounce AI update
+      const now = Date.now();
+      if (now - lastUpdate > 2000) {
+        fetchPrediction();
+        lastUpdate = now;
+      }
     });
 
-    return () => socket.disconnect();
-  }, []);
-
-  // ================= AI PREDICTION FETCH =================
-  useEffect(() => {
-    const fetchPrediction = async () => {
-      try {
-        const res = await fetch("http://192.168.1.14:5000/ai-prediction");
-        const data = await res.json();
-        setAiPrediction(data);
-      } catch (err) {
-        console.log("AI prediction error:", err);
-      }
-    };
-
     fetchPrediction();
-
-    // refresh every 5 seconds (real-time feel)
     const interval = setInterval(fetchPrediction, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      socket.disconnect();
+      clearInterval(interval);
+    };
+
   }, []);
 
+  // ================= UI =================
   return (
     <ScrollView style={styles.container}>
       <View style={{ padding: 15 }}>
+
+        {/* LOGO */}
         <Text style={styles.subHeader}>
           <Image
             source={require("../../../..//frontend/assets/images/Tqueue.logo.png")}
@@ -111,11 +141,20 @@ export default function HomeScreen() {
             <Ionicons name="time-outline" size={35} color="#fff" />
             <Text style={styles.processingText}>Your Queue Number</Text>
             <Text style={styles.queueNumber}>{processing.Queue}</Text>
+
             <View style={styles.statusBadge}>
-              <Text style={styles.statusText}>{processing.Status.toUpperCase()}</Text>
+              <Text style={styles.statusText}>
+                {processing.Status.toUpperCase()}
+              </Text>
             </View>
+
             <Text style={styles.processingText}>
-              {queueList.length > 1 ? " You're next!" : "Waiting..."}
+              {queueList.length > 1 ? "You're next!" : "Waiting..."}
+            </Text>
+
+            {/* ⭐ POSITION FEATURE */}
+            <Text style={styles.processingText}>
+              You are #{getPosition() ?? 0} in line
             </Text>
           </View>
         )}
@@ -123,15 +162,21 @@ export default function HomeScreen() {
         {/* ================= INFO ROW ================= */}
         {processing && (
           <View style={styles.infoRow}>
+
             <View style={styles.smallCard}>
               <Text style={styles.smallTitle}>Estimated Wait</Text>
 
-              {/* 🔥 AI PREDICTION HERE */}
               <Text style={styles.smallValue}>
-                {aiPrediction
-                  ? `${aiPrediction.estimated_waiting_time_minutes.toFixed(1)} min`
-                  : "Loading..."}
+                {aiPrediction?.estimated_waiting_time_minutes > 0
+                  ? `${Math.round(aiPrediction.estimated_waiting_time_minutes)} min`
+                  : "Calculating..."}
               </Text>
+
+              {aiPrediction?.waiting_students > 0 && (
+                <Text style={{ fontSize: 10, color: "#666", marginTop: 5 }}>
+                  {aiPrediction.waiting_students} students ahead
+                </Text>
+              )}
             </View>
 
             <View style={styles.smallCard}>
@@ -145,6 +190,7 @@ export default function HomeScreen() {
               <Text style={styles.smallTitle}>Teller</Text>
               <Text style={styles.smallValue}>{processing.Teller}</Text>
             </View>
+
           </View>
         )}
 
@@ -153,7 +199,9 @@ export default function HomeScreen() {
 
         {processing && (
           <View style={styles.liveCard}>
-            <Text style={styles.liveQueueNumber}>Queue #{processing.Queue}</Text>
+            <Text style={styles.liveQueueNumber}>
+              Queue #{processing.Queue}
+            </Text>
             <Text style={styles.liveStatusText}>Now Processing</Text>
           </View>
         )}
@@ -178,6 +226,7 @@ export default function HomeScreen() {
         {/* ================= CHAT BOX ================= */}
         {showBox && (
           <View style={styles.showBox}>
+
             <View style={styles.headerRow}>
               <View style={styles.activeDot} />
               <Text style={styles.header1}>AI Assistant</Text>
@@ -191,7 +240,9 @@ export default function HomeScreen() {
                   key={index}
                   style={[
                     styles.messageBox,
-                    msg.sender === "user" ? styles.userMessage : styles.aiMessage,
+                    msg.sender === "user"
+                      ? styles.userMessage
+                      : styles.aiMessage,
                   ]}
                 >
                   <Text>{msg.text}</Text>
@@ -211,6 +262,7 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   style={styles.send}
                   onPress={async () => {
+
                     if (message.trim() === "") return;
 
                     const userMessage = message;
@@ -229,12 +281,15 @@ export default function HomeScreen() {
                     ]);
                   }}
                 >
-                  <Ionicons name="paper-plane" size={30} color={"#3467f4"} />
+                  <Ionicons name="paper-plane" size={30} color="#3467f4" />
                 </TouchableOpacity>
+
               </View>
             </View>
+
           </View>
         )}
+
       </View>
     </ScrollView>
   );

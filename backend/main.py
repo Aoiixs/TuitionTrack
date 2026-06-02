@@ -278,7 +278,8 @@ def mark_as_paid(queue_id):
 
         cursor.execute("""
             UPDATE queue_logs
-            SET status='paid'
+            SET status='paid',
+            completed_at=NOW()
             WHERE id=%s
         """, (queue_id,))
 
@@ -381,8 +382,9 @@ def add_payment():
 
     cursor.execute("""
         UPDATE queue_logs
-        SET status = 'Processing'
-        WHERE id = %s
+        SET status='Processing',
+        processing_started_at=NOW()
+        WHERE id=%s
     """, (student["queue_id"],))
 
     conn.commit()

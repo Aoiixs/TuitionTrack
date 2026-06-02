@@ -161,13 +161,14 @@ def ai_chat():
 })
 
 # ================= AI PREDICTION =================
+# ================= AI PREDICTION (REAL VERSION) =================
 @ai_bp.route("/ai-prediction", methods=["GET"])
 def ai_prediction():
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # waiting students
+    # Waiting students
     cursor.execute("""
         SELECT COUNT(*) AS total
         FROM queue_logs
@@ -175,38 +176,76 @@ def ai_prediction():
     """)
     waiting = cursor.fetchone()["total"]
 
-    # processing or completed today
+    # Current processing
     cursor.execute("""
         SELECT COUNT(*) AS total
         FROM queue_logs
-        WHERE DATE(created_at)=CURDATE()
-        AND status IN ('processing','paid')
+        WHERE status='processing'
     """)
-    processed = cursor.fetchone()["total"]
+    processing_now = cursor.fetchone()["total"]
 
-    # payments today
+    # ================= REAL AVERAGE SERVICE TIME =================
     cursor.execute("""
-        SELECT COUNT(*) AS total
-        FROM payments
-        WHERE DATE(payment_date)=CURDATE()
+        SELECT AVG(
+            TIMESTAMPDIFF(
+                MINUTE,
+                processing_started_at,
+                completed_at
+            )
+        ) AS avg_time
+        FROM queue_logs
+        WHERE completed_at IS NOT NULL
+        AND DATE(completed_at)=CURDATE()
     """)
-    payments_today = cursor.fetchone()["total"]
+
+    row = cursor.fetchone()
+    avg_time = row["avg_time"] or 2
+
+    # Prevent unrealistic values
+    if avg_time < 1:
+        avg_time = 1
+
+    # ================= CONGESTION FACTOR =================
+    congestion_factor = 1 + (processing_now * 0.1)
+
+    # ================= FINAL ESTIMATION =================
+    estimated_wait = waiting * avg_time * congestion_factor
+
+    # ================= OPTIONAL: AI INSIGHT (GEMINI) =================
+    try:
+        ai_prompt = f"""
+Queue Analysis Report:
+
+Waiting Students: {waiting}
+Processing Now: {processing_now}
+Average Service Time: {avg_time:.2f} minutes
+Estimated Wait Time: {estimated_wait:.2f} minutes
+
+Give:
+1. Queue status analysis
+2. Risk level (Low/Medium/High congestion)
+3. Optimization recommendation
+"""
+
+        ai_response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=ai_prompt
+        )
+
+        ai_insight = ai_response.text.replace("**", "").replace("*", "").replace("##", "")
+
+    except:
+        ai_insight = "AI insight unavailable"
 
     cursor.close()
     conn.close()
 
-    # =================  AI FORMULA =================
-    if processed == 0:
-        avg_time_per_student = 2  
-    else:
-        avg_time_per_student = payments_today / processed
-        if avg_time_per_student < 1:
-            avg_time_per_student = 1
-
-    estimated_wait = waiting * avg_time_per_student
-
     return jsonify({
         "waiting_students": waiting,
-        "avg_time_per_student": round(avg_time_per_student, 2),
-        "estimated_waiting_time_minutes": round(estimated_wait, 2)
+        "processing_students": processing_now,
+        "avg_time_per_student": round(avg_time, 2),
+        "congestion_factor": round(congestion_factor, 2),
+        "estimated_waiting_time_minutes": round(estimated_wait, 2),
+        "ai_insight": ai_insight,
+        "model": "Historical Timestamp-Based AI Prediction v1"
     })
