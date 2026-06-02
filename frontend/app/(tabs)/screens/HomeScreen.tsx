@@ -38,7 +38,7 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
 
-  // ================= POSITION CALC =================
+  // ================= SAFE POSITION =================
   const getPosition = () => {
     if (!processing) return null;
 
@@ -70,20 +70,27 @@ export default function HomeScreen() {
       }
     };
 
+    socket.on("ai_refresh", () => {
+      fetchPrediction();
+    });
+    
     socket.on("queue_update", (data: any) => {
 
       const raw: any = data.payload || data;
 
+      const status = (raw.Status || "waiting").toLowerCase().trim();
+
       const info: StudentInfo = {
         Teller: raw.Teller || "N/A",
         Queue: raw.Queue || "",
-        Status: (raw.Status || "Waiting").toLowerCase(),
+        Status: status,
         Student_Balance: Number(raw.Student_Balance ?? 0),
         Student_amount_pay: raw.Student_amount_pay ?? 0,
       };
 
       if (!info.Queue) return;
 
+      // ================= FIXED QUEUE LIST =================
       setQueueList((prev) => {
         const index = prev.findIndex((s) => s.Queue === info.Queue);
         let newList;
@@ -98,15 +105,23 @@ export default function HomeScreen() {
         return newList.sort((a, b) => Number(a.Queue) - Number(b.Queue));
       });
 
+      // ================= FIXED PROCESSING LOGIC =================
       setProcessing((prev) => {
-        if (info.Status === "processing") return info;
-        if (prev?.Queue === info.Queue && info.Status !== "processing") return null;
+
+        if (status === "processing") {
+          return info;
+        }
+
+        if (prev?.Queue === info.Queue && status !== "processing") {
+          return null;
+        }
+
         return prev;
       });
 
-      // debounce AI update
+      // ================= SAFE AI REFRESH =================
       const now = Date.now();
-      if (now - lastUpdate > 2000) {
+      if (now - lastUpdate > 1500) {
         fetchPrediction();
         lastUpdate = now;
       }
@@ -152,7 +167,6 @@ export default function HomeScreen() {
               {queueList.length > 1 ? "You're next!" : "Waiting..."}
             </Text>
 
-            {/* ⭐ POSITION FEATURE */}
             <Text style={styles.processingText}>
               You are #{getPosition() ?? 0} in line
             </Text>
@@ -172,11 +186,9 @@ export default function HomeScreen() {
                   : "Calculating..."}
               </Text>
 
-              {aiPrediction?.waiting_students > 0 && (
-                <Text style={{ fontSize: 10, color: "#666", marginTop: 5 }}>
-                  {aiPrediction.waiting_students} students ahead
-                </Text>
-              )}
+              <Text style={{ fontSize: 10, color: "#666", marginTop: 5 }}>
+                {aiPrediction.waiting_students} students ahead
+              </Text>
             </View>
 
             <View style={styles.smallCard}>
@@ -231,7 +243,7 @@ export default function HomeScreen() {
               <View style={styles.activeDot} />
               <Text style={styles.header1}>AI Assistant</Text>
             </View>
-  
+
             <Text style={styles.activeM}>Active Monitoring</Text>
 
             <ScrollView style={styles.chatContainer}>
