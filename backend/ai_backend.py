@@ -1,8 +1,18 @@
 from flask import Blueprint, jsonify,request 
+import pymysql
 from google import genai
 from dotenv import load_dotenv
 import datetime
 import os
+
+def get_db_connection():
+    return pymysql.connect(
+        host = "localhost",
+        user= "root",
+        password = "lhuzxcu2375",
+        database = "school_queue_system",
+        cursorclass = pymysql.cursors.DictCursor
+    )
 
 load_dotenv()
 
@@ -15,10 +25,74 @@ client = genai.Client(api_key=gemini_api_key)
 def ai_chat():
     data = request.get_json()
     message = data.get("message", "")
-
     current_date = datetime.datetime.now().strftime("%B %d, %Y")
     current_time = datetime.datetime.now().strftime("%I:%M %p")
 
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Waiting Students
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE LOWER(COALESCE(status,'waiting')) = 'waiting'
+    """)
+    waiting_count = cursor.fetchone()["total"]
+
+    # Processing students
+    cursor.execute("""
+        SELECT
+            q.queue_number,
+            s.student_first_name,
+            s.student_last_name
+        FROM queue_logs q
+        JOIN students s ON q.student_id = s.id
+        WHERE LOWER(COALESCE(q.status,''))='processing'
+    """)
+    processing_students = cursor.fetchall()
+
+    # Paid today
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM payments
+        WHERE DATE(payment_date)=CURDATE()
+    """)
+    paid_today = cursor.fetchone()["total"] 
+
+    cursor.execute("""
+    SELECT DISTINCT
+        q.queue_number,
+        s.student_first_name,
+        s.student_last_name
+    FROM payments p
+    JOIN students s ON p.student_id = s.id
+    JOIN queue_logs q ON p.queue_id = q.id
+    WHERE DATE(p.payment_date)=CURDATE()
+""")
+    paid_students = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    if processing_students:
+        processing_text = "\n".join([
+            f"Queue #{row['queue_number']} - "
+            f"{row['student_first_name']} {row['student_last_name']}"
+            for row in processing_students
+    ])
+    else:
+        processing_text = "No student currently being processed"
+
+    if paid_students:
+        paid_text = "\n".join([
+        f"Queue #{row['queue_number']} - "
+        f"{row['student_first_name']} {row['student_last_name']}"
+        for row in paid_students
+    ])
+    else:
+        paid_text = "No students have paid today."
+
+        
 
     prompt = f"""
     You are QueueTrack AI Assistant.
@@ -54,6 +128,20 @@ def ai_chat():
     - Help with technical questions
     - Be friendly and professional
 
+    REAL-TIME QUEUE DATA
+
+    Students Waiting:
+    {waiting_count}
+    Currently Processing:
+    {processing_text}
+    Students Paid Today:
+    {paid_today}
+    Students Who's Paid:
+    {paid_text}
+
+    IMPORTANT:
+    Use the real-time queue data above when answering queue-related questions.
+    Do not invent queue information.
 
     Admin Message:
     {message}
@@ -62,9 +150,6 @@ def ai_chat():
         model = "gemini-2.5-flash",
         contents=prompt
     )
-
-
-    
     reply = response.text
     reply = reply.replace("**", "")
     reply = reply.replace("*", "")
@@ -74,3 +159,72 @@ def ai_chat():
     "reply": reply
 })
 
+# ================= AI PREDICTION =================
+@ai_bp.route("/ai-prediction", methods=["GET"])
+def ai_prediction():
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # waiting students
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE LOWER(COALESCE(status,'waiting'))='waiting'
+    """)
+    waiting = cursor.fetchone()["total"]
+
+    # processing now
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE LOWER(status)='processing'
+    """)
+    processing_now = cursor.fetchone()["total"]
+
+    # completed today
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM queue_logs
+        WHERE DATE(created_at)=CURDATE()
+        AND LOWER(status) IN ('processing','paid')
+    """)
+    processed = cursor.fetchone()["total"]
+
+    # avg service time (SAFE)
+    cursor.execute("""
+        SELECT AVG(
+            TIMESTAMPDIFF(MINUTE, processing_started_at, completed_at)
+        ) AS avg_time
+        FROM queue_logs
+        WHERE completed_at IS NOT NULL
+        AND DATE(completed_at)=CURDATE()
+    """)
+
+    row = cursor.fetchone()
+    avg_time = row["avg_time"]
+
+    if not avg_time or avg_time < 1:
+        avg_time = 2  # default fallback
+
+    # congestion factor
+    congestion_factor = 1 + (processing_now * 0.1)
+
+    # estimated wait
+    estimated_wait = waiting * avg_time * congestion_factor
+
+    cursor.close()
+    conn.close()
+
+    # ================= IMPORTANT: MATCH FRONTEND =================
+    return jsonify({
+        #  REQUIRED BY MOBILE (DO NOT CHANGE THESE KEYS)
+        "waiting_students": waiting,
+        "avg_time_per_student": round(avg_time, 2),
+        "estimated_waiting_time_minutes": round(estimated_wait, 2),
+
+        # optional (safe extras)
+        "processing_students": processing_now,
+        "congestion_factor": round(congestion_factor, 2),
+        "model": "QueueTrack AI v2 (Stable)"
+    })

@@ -23,6 +23,7 @@ body{
 }
 
 .icon img{
+    display: flex;
     width:200px;
     height:110px;
     display:flex;
@@ -84,10 +85,11 @@ button{
     display:block;
     margin-top:25px;
     padding:12px;
-    background:#9fc8c6;
+    background:#7da8a6;
     color:white;
     text-decoration:none;
     border-radius:10px;
     font-size:16px;
     cursor: pointer;
+   
 }

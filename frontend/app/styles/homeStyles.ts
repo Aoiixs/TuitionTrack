@@ -15,7 +15,7 @@ export default StyleSheet.create({
   marginLeft: -10
 },
   
-  mainCard: { backgroundColor: "#9bc4c4", borderRadius: 20, padding: 25, alignItems: "center", marginBottom: 15 },
+  mainCard: { marginTop: 20, backgroundColor: "#9bc4c4", borderRadius: 20, padding: 25, alignItems: "center", marginBottom: 15 },
   queueNumber: { fontSize: 70, fontWeight: "bold", color: "#fff" },
   processingText: { color: "#fff", marginTop: 10 },
   statusBadge: { backgroundColor: "#fff", borderRadius: 20, paddingHorizontal: 15, paddingVertical: 5, marginTop: 5 },
@@ -37,10 +37,20 @@ export default StyleSheet.create({
   currentStatusText: { color: "#fff", textAlign: "center" },
   
   activeM:{alignSelf: "center", fontSize: 13, marginLeft: -180},
-  containers:{position: "absolute", right: 20,  justifyContent: "center",padding: 0,marginTop: 500,
-  marginBottom: 2, marginLeft: 235,display: "flex", borderWidth: 1, borderRadius: 50,
-  width: 67, height: 65, alignItems: 'center',
-  backgroundColor: "#9bc4c4", borderColor: "white"},
+
+fab: {
+  position: "absolute",
+  bottom: 20,
+  right: 20,
+  width: 60,
+  height: 60,
+  borderRadius: 30,
+  backgroundColor: "#9bc4c4",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 9999,
+  elevation: 20,
+},
 
   reply: {alignSelf: "flex-end", width: 100},
   input:{width: 350, marginRight: 25,height: 100,flexDirection: 'row', alignItems: 'center'},
@@ -52,15 +62,15 @@ export default StyleSheet.create({
   headerRow:{flexDirection: "row", alignItems: "center"},
   logo:{width: "30%", height: 60, },
 
-  messageBox:{maxWidth: "75%", padding: 10, borderRadius: 12, marginVertical: 5},
-  userMessage: {alignSelf: "center", backgroundColor: "#e0e0e0", marginLeft: 250},
-  aiMessage: {alignSelf: "flex-start", backgroundColor: "#e0e0e0"},
+  messageBox:{maxWidth: "80%", padding: 10, borderRadius: 12, marginVertical: 5},
+  userMessage: {alignSelf: "flex-end", backgroundColor: "#e0e0e0", bottom: -10},
+  aiMessage: {alignSelf: "flex-start", backgroundColor: "#e0e0e0", bottom: -10},
 
 
-  chatContainer:{width: 320, alignSelf: "center",  height: 270,backgroundColor: "#f5f5f5", padding: 20,
-  marginTop: 20, borderRadius: 10},
-  send:{justifyContent: "center", alignItems: "center", marginLeft: -25, marginBottom: 8 },
-  showBox:{width: 350, padding: 20, marginTop: 0,backgroundColor: "#9bc4c4", alignSelf: "center",borderRadius: 20},
+  chatContainer:{width: 340, alignSelf: "center",  height: 300,backgroundColor: "#f5f5f5", padding: 20,
+  marginTop: 10, borderRadius: 10},
+  send:{justifyContent: "center", alignItems: "center", marginLeft: -50, marginBottom: 12 },
+  showBox:{width: 350, padding: 20, marginBottom: 100,backgroundColor: "#9bc4c4", alignSelf: "center",borderRadius: 20},
   // activeM:{color: "white", fontSize: 10},
   header1:{alignSelf: "center",  fontWeight: "bold", fontSize: 15, marginLeft: 15},
   headers: {color: "white", fontSize: 15, alignSelf: "center", marginBottom: 280, marginRight: 130},

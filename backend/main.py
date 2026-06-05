@@ -278,7 +278,8 @@ def mark_as_paid(queue_id):
 
         cursor.execute("""
             UPDATE queue_logs
-            SET status='paid'
+            SET status='paid',
+            completed_at=NOW()
             WHERE id=%s
         """, (queue_id,))
 
@@ -294,7 +295,7 @@ def mark_as_paid(queue_id):
 
             cursor.execute("""
                 UPDATE queue_logs
-                SET status='processing'
+                SET status='waiting'
                 WHERE id=%s
             """, (next_student["id"],))
 
@@ -306,6 +307,10 @@ def mark_as_paid(queue_id):
             """, ("Now Serving", message, datetime.datetime.now()))
 
             conn.commit()
+
+            socketio.emit("ai_refresh", {
+                "trigger": "mark_as_paid"
+            })
 
             socketio.emit("new_notification", {
                 "title": "Now Serving",
@@ -381,8 +386,9 @@ def add_payment():
 
     cursor.execute("""
         UPDATE queue_logs
-        SET status = 'Processing'
-        WHERE id = %s
+        SET status='Processing',
+        processing_started_at=NOW()
+        WHERE id=%s
     """, (student["queue_id"],))
 
     conn.commit()
@@ -397,11 +403,16 @@ def add_payment():
         "Last_Name": student["student_last_name"],
         "Student_Year": student["student_year"],
         "Student_Course": student["student_course"],
-        "Status": "waiting",
+        "Status": "processing",
         "Student_Balance": float(student["student_balance"]),
         "amount_paid": 0,
         "Timestamp": student["created_at"].strftime("%Y-%m-%d %H:%M:%S")
     })
+
+    socketio.emit("ai_refresh", {
+    "trigger": "add_payment"
+    })
+
     print("QUEUE ID: ", request.args.get("queue_id"))
 
 
@@ -438,6 +449,10 @@ def process_payment():
         """, (amount, amount, student_id))
 
         conn.commit()
+
+        socketio.emit("ai_refresh", {
+    "trigger": "process_payment"
+    })
 
         flash("Payment successfully processed.")
 
