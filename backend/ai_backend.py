@@ -191,7 +191,7 @@ def ai_prediction():
     """)
     processed = cursor.fetchone()["total"]
 
-    # avg service time (SAFE)
+    # avg service time 
     cursor.execute("""
         SELECT AVG(
             TIMESTAMPDIFF(MINUTE, processing_started_at, completed_at)
@@ -213,17 +213,15 @@ def ai_prediction():
     # estimated wait
     estimated_wait = waiting * avg_time * congestion_factor
 
-    cursor.close()
+    cursor.close()  
     conn.close()
 
-    # ================= IMPORTANT: MATCH FRONTEND =================
+    # ==================================
     return jsonify({
-        # ✅ REQUIRED BY MOBILE (DO NOT CHANGE THESE KEYS)
         "waiting_students": waiting,
         "avg_time_per_student": round(avg_time, 2),
         "estimated_waiting_time_minutes": round(estimated_wait, 2),
 
-        # optional (safe extras)
         "processing_students": processing_now,
         "congestion_factor": round(congestion_factor, 2),
         "model": "QueueTrack AI v2 (Stable)"
