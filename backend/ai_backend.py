@@ -23,6 +23,9 @@ client = genai.Client(api_key=gemini_api_key)
 
 @ai_bp.route("/ai-chat", methods = ["POST"])
 def ai_chat():
+    
+    
+    
     data = request.get_json()
     message = data.get("message", "")
     current_date = datetime.datetime.now().strftime("%B %d, %Y")

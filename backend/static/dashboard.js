@@ -75,7 +75,6 @@ function loadDashboardStats(){
     .then(res => res.json())
     .then(data => {
         console.log("STATS:", data);
-
         statsQueue.textContent = data.students_in_queue ?? 0;
         statsProcessing.textContent = data.currently_processing ?? 0;
         statsPaidToday.textContent = data.paid_today ?? 0;

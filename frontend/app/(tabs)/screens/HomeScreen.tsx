@@ -5,6 +5,7 @@ import styles from "../../styles/homeStyles";
 import { SendtoAI } from "./serviceAI";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import inquiry from "../../styles/inquiry";
 import { io, Socket } from "socket.io-client";
 
 // ================= TYPES =================
@@ -37,6 +38,208 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
 
+
+  const mainMenu=[
+    "RFID Issue",
+    "Queue Concern",
+    "Notification Issue",
+    "Report Problem",
+    "Need Help?",
+    "System Guide",
+  ]
+
+
+ const handleInquiry = (type: string ) =>{
+  let options: string[] = [];
+
+  switch (type){
+
+
+    case "Back":
+      setMessages((prev) =>[
+        ...prev,
+
+        {text: "Back", sender: "user"},
+        {
+          text: "Please select an option: ",
+          sender: "ai",
+          type: "options",
+          options: mainMenu,
+        },
+      ]);
+      return;
+      
+
+
+    case "RFID Issue":
+      options=[
+          "RFID Not Detected",
+          "RFID Lost",
+          "RFID Damaged",
+          "RFID Wrong Information",
+          
+          "Back",
+
+      ];
+      break;
+
+    case "Queue Concern":
+      options=[
+          "Queue Not Moving",
+          "Wrong Queue Number",
+          "Missed Queue",
+          "Long Waiting Time",
+          "Back",
+      ];
+      break;
+
+    case "Notification Issue":
+      options=[
+        "No Notification Received",
+        "Delayed Notification",
+        "Wrong Notification",
+        "Back",
+      ];
+      break;
+
+    case "Report Problem":
+      options=[
+        "System Error",
+        "Application Crash",
+        "Incorrect Data",
+        "Back",
+      ];
+      break;
+
+    case "Need Help?":
+      options=[
+        "Contact Staff",
+        "Talk to Support",
+        "General Inquiry",
+        "Back",
+      ];
+      break;
+
+
+
+    case "System Guide":
+      options=[
+        "How to use TuitionQueueTrack",
+        "Queue System Basics",
+        "RFID Guide",
+        "Notifications Guide",
+        "Back",
+      ];
+      break;
+
+
+
+  case "How to use TuitionQueueTrack":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "How to Use QueueTrack:\n\n" +
+        "1. Scan your RFID card\n" +
+        "2. Get your queue number automatically\n" +
+        "3. Monitor your position in real-time\n" +
+        "4. Wait until your number is called\n" +
+        "5. Proceed to the assigned teller\n\n" +
+        "You can leave the waiting area while waiting.",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+
+  case "Queue System Basics":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "QueueTrack assigns numbers automatically based on RFID scan.\n" +
+        "The system updates in real-time and shows your position in line.\n\n" +
+        "Priority is based on arrival time and system rules.",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+  case "RFID Guide":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "RFID Guide:\n\n" +
+        "• Tap your RFID card at the scanner\n" +
+        "• Make sure it is not damaged\n" +
+        "• Keep your card registered properly\n\n" +
+        "If RFID is not detected, contact ITSD.",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+  case "Notifications Guide":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "Notifications are sent when:\n" +
+        "• Your turn is near\n" +
+        "• Your queue is updated\n" +
+        "• System alerts are triggered\n\n",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+  
+
+  }
+
+
+  if (options.length === 0){
+    setMessages((prev) =>[
+      ...prev,
+      {text: type, sender: "user"},
+      
+    ]);
+
+    SendtoAI(type).then((data)=> {
+      setMessages((prev) =>[
+        ...prev,
+        {
+          text: data.reply, sender: "ai"},
+      ]);
+    });
+    return;
+  }
+
+  setMessages((prev) =>[
+    ...prev,
+    {text: type, sender: "user"},
+    {
+      text: "Please select an option: ",
+      sender: "ai",
+      type: "options",
+      options,
+
+    },
+  ]);
+  
+ };
+
+
+
   // ================= POSITION =================
   const getPosition = () => {
     if (!processing) return null;
@@ -53,7 +256,7 @@ export default function HomeScreen() {
   // ================= SOCKET =================
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.254.139:5000", {
+    const socket: Socket = io("http://192.168.1.52:5000", {
       transports: ["websocket"],
     });
 
@@ -61,7 +264,7 @@ export default function HomeScreen() {
 
     const fetchPrediction = async () => {
       try {
-        const res = await fetch("http://192.168.254.139:5000/ai-prediction");
+        const res = await fetch("http://192.168.1.52:5000/ai-prediction");
         const data = await res.json();
         setAiPrediction(data);
       } catch (err) {
@@ -233,9 +436,14 @@ export default function HomeScreen() {
         <MaterialCommunityIcons name="brain" size={35} color="#ffffff" />
       </TouchableOpacity>
 
+
+
+
+
       {/* ================= CHAT BOX ================= */}
       {showBox && (
         <View style={styles.showBox}>
+
 
           <View style={styles.headerRow}>
             <View style={styles.activeDot} />
@@ -244,7 +452,78 @@ export default function HomeScreen() {
 
           <Text style={styles.activeM}>Active Monitoring</Text>
 
-          <ScrollView style={styles.chatContainer}>
+          <ScrollView style={styles.chatContainer}
+          nestedScrollEnabled={true}
+          
+          >
+            <View style={inquiry.inquiryContainer}>
+              
+
+              <Text style={inquiry.swipeHint}>
+                {"Swipe for more options"}
+                </Text>
+              
+              <ScrollView horizontal
+              showsHorizontalScrollIndicator={false}
+              nestedScrollEnabled={true}
+
+              contentContainerStyle={{
+                gap: 20,
+                paddingHorizontal: 10,
+              
+              }
+              }
+              >
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("RFID Issue")}}>
+                <Text style={inquiry.inquiryText}>RFID Issue</Text>
+              </TouchableOpacity>
+
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Queue Concern")}}>
+                <Text style={inquiry.inquiryText}>Queue Concern</Text>
+              </TouchableOpacity>
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Notification Issue")}}>
+                <Text style={inquiry.inquiryText}>Notification Issue</Text>
+              </TouchableOpacity>
+
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Report Problem")}}>
+                <Text style={inquiry.inquiryText}>Report Problem</Text>
+              </TouchableOpacity>
+
+
+
+                <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Need Help?")}}>
+                <Text style={inquiry.inquiryText}>Need Help?</Text>
+              </TouchableOpacity>
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("System Guide")}}>
+                <Text style={inquiry.inquiryText}>System Guide</Text>
+              </TouchableOpacity>
+
+              </ScrollView>
+              
+              
+           
+          
+          </View>
             {messages.map((msg, index) => (
               <View
                 key={index}
@@ -253,15 +532,38 @@ export default function HomeScreen() {
                   msg.sender === "user"
                     ? styles.userMessage
                     : styles.aiMessage,
+                    
+
+
+                    
+                    
                 ]}
               >
                 <Text>{msg.text}</Text>
+
+                 {msg.type === "options" &&(
+                  <View>
+                    {msg.options.map((option: string, i: number) => (
+                      <TouchableOpacity
+                      key={i}
+                      style={inquiry.inquiryButton}
+                      onPress={() => handleInquiry(option)}>
+                        <Text>{option}</Text>
+                      </TouchableOpacity>
+                    ))}
+                    </View>
+
+                )} 
               </View>
             ))}
+
           </ScrollView>
+
+          
 
           <View style={styles.container1}>
             <View style={styles.input}>
+              
               <TextInput
                 placeholder="Send a message"
                 value={message}
@@ -291,7 +593,7 @@ export default function HomeScreen() {
                   ]);
                 }}
               >
-                <Ionicons name="paper-plane" size={30} color="#3467f4" />
+                <Ionicons name="paper-plane" size={27} color="#3467f4" />
               </TouchableOpacity>
 
             </View>

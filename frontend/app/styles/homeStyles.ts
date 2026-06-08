@@ -62,9 +62,9 @@ fab: {
   headerRow:{flexDirection: "row", alignItems: "center"},
   logo:{width: "30%", height: 60, },
 
-  messageBox:{maxWidth: "80%", padding: 10, borderRadius: 12, marginVertical: 5},
+  messageBox:{maxWidth: "75%", padding: 10, borderRadius: 12, marginVertical: 5},
   userMessage: {alignSelf: "flex-end", backgroundColor: "#e0e0e0", bottom: -10},
-  aiMessage: {alignSelf: "flex-start", backgroundColor: "#e0e0e0", bottom: -10},
+  aiMessage: {alignSelf: "flex-start", backgroundColor: "#e0e0e0", bottom: 20},
 
 
   chatContainer:{width: 340, alignSelf: "center",  height: 300,backgroundColor: "#f5f5f5", padding: 20,

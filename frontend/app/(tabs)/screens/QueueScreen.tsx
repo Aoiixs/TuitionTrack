@@ -20,7 +20,7 @@ export default function PaymentScreen() {
 
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.254.139:5000", {
+    const socket: Socket = io("http://192.168.1.52:5000", {
 
       transports: ["websocket"],
     });
