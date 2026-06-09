@@ -38,15 +38,21 @@
             <i class="bi bi-people-fill"></i> Queue Monitoring
         </a>
 
+        <a href="{{ url_for('add_payment') }}" 
+        class="nav-link {{ 'active' if request.path == url_for('add_payment') else '' }}">
+            <i class="bi bi-plus-circle"></i> Add Payment
+        </a>
+
+        <a href="{{ url_for('history') }}"
+       class="nav-link {{ 'active' if request.path == url_for('history') else '' }}">
+            <i class="bi bi-clock-history me-3"></i> Payment History
+        </a>
+
         <a href="{{ url_for('analytics') }}" 
         class="nav-link {{ 'active' if request.path == url_for('analytics') else '' }}">
             <i class="bi bi-graph-up-arrow"></i> Analytics
         </a>
 
-        <a href="{{ url_for('add_payment') }}" 
-        class="nav-link {{ 'active' if request.path == url_for('add_payment') else '' }}">
-            <i class="bi bi-plus-circle"></i> Add Payment
-        </a>
 
         <a href="{{ url_for('logout') }}" class="nav-link">
             <i class="bi bi-box-arrow-right"></i> Logout

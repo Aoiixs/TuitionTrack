@@ -27,8 +27,7 @@ export default function HomeScreen() {
   const [queueList, setQueueList] = useState<StudentInfo[]>([]);
   const [processing, setProcessing] = useState<StudentInfo | null>(null);
 
-  // SAFE DEFAULT
-  const [aiPrediction, setAiPrediction] = useState<AIPrediction>({
+  const [aiPrediction, setAiPrediction] = useState({
     waiting_students: 0,
     avg_time_per_student: 0,
     estimated_waiting_time_minutes: 0,
@@ -38,7 +37,7 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
 
-  // ================= SAFE POSITION =================
+  // ================= POSITION =================
   const getPosition = () => {
     if (!processing) return null;
 
@@ -51,10 +50,10 @@ export default function HomeScreen() {
     return index >= 0 ? index + 1 : null;
   };
 
-  // ================= SOCKET + AI =================
+  // ================= SOCKET =================
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.254.138:5000", {
+    const socket: Socket = io("http://192.168.1.8:5000", {
       transports: ["websocket"],
     });
 
@@ -62,7 +61,7 @@ export default function HomeScreen() {
 
     const fetchPrediction = async () => {
       try {
-        const res = await fetch("http://192.168.254.138:5000/ai-prediction");
+        const res = await fetch("http://192.168.1.8:5000/ai-prediction");
         const data = await res.json();
         setAiPrediction(data);
       } catch (err) {
@@ -73,7 +72,7 @@ export default function HomeScreen() {
     socket.on("ai_refresh", () => {
       fetchPrediction();
     });
-    
+
     socket.on("queue_update", (data: any) => {
 
       const raw: any = data.payload || data;
@@ -90,7 +89,6 @@ export default function HomeScreen() {
 
       if (!info.Queue) return;
 
-      // ================= FIXED QUEUE LIST =================
       setQueueList((prev) => {
         const index = prev.findIndex((s) => s.Queue === info.Queue);
         let newList;
@@ -105,7 +103,6 @@ export default function HomeScreen() {
         return newList.sort((a, b) => Number(a.Queue) - Number(b.Queue));
       });
 
-      // ================= FIXED PROCESSING LOGIC =================
       setProcessing((prev) => {
 
         if (status === "processing") {
@@ -119,7 +116,6 @@ export default function HomeScreen() {
         return prev;
       });
 
-      // ================= SAFE AI REFRESH =================
       const now = Date.now();
       if (now - lastUpdate > 1500) {
         fetchPrediction();
@@ -139,8 +135,10 @@ export default function HomeScreen() {
 
   // ================= UI =================
   return (
-    <ScrollView style={styles.container}>
-      <View style={{ padding: 15 }}>
+    <View style={{ flex: 1 }}>
+
+      {/* ================= SCROLL CONTENT ================= */}
+      <ScrollView contentContainerStyle={{ padding: 15, paddingBottom: 120 }}>
 
         {/* LOGO */}
         <Text style={styles.subHeader}>
@@ -150,7 +148,7 @@ export default function HomeScreen() {
           />
         </Text>
 
-        {/* ================= PROCESSING CARD ================= */}
+        {/* PROCESSING CARD */}
         {processing && (
           <View style={styles.mainCard}>
             <Ionicons name="time-outline" size={35} color="#fff" />
@@ -173,19 +171,17 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ================= INFO ROW ================= */}
+        {/* INFO ROW */}
         {processing && (
           <View style={styles.infoRow}>
 
             <View style={styles.smallCard}>
               <Text style={styles.smallTitle}>Estimated Wait</Text>
-
               <Text style={styles.smallValue}>
                 {aiPrediction?.estimated_waiting_time_minutes > 0
                   ? `${Math.round(aiPrediction.estimated_waiting_time_minutes)} min`
                   : "Calculating..."}
               </Text>
-
               <Text style={{ fontSize: 10, color: "#666", marginTop: 5 }}>
                 {aiPrediction.waiting_students} students ahead
               </Text>
@@ -206,7 +202,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ================= LIVE QUEUE ================= */}
+        {/* LIVE QUEUE */}
         <Text style={styles.liveHeader}>🔴 Live Queue Monitor</Text>
 
         {processing && (
@@ -220,89 +216,90 @@ export default function HomeScreen() {
 
         {queueList
           .filter((s) => s.Queue !== processing?.Queue)
-          .map((student, index) => (
+          .map((student) => (
             <View key={student.Queue} style={styles.liveCard}>
               <Text style={styles.liveQueueNumber}>{student.Queue}</Text>
               <Text style={styles.liveStatusText}>{student.Status}</Text>
-              {index === 0 && <Text style={styles.nextText}>Next</Text>}
             </View>
           ))}
 
-        {/* ================= AI BUTTON ================= */}
-        <TouchableOpacity onPress={() => setShowBox(!showBox)}>
-          <View style={styles.containers}>
-            <MaterialCommunityIcons name="brain" size={35} color="dark-gray" />
+      </ScrollView>
+
+      {/* ================= AI FLOATING BUTTON ================= */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setShowBox(!showBox)}
+      >
+        <MaterialCommunityIcons name="brain" size={35} color="#ffffff" />
+      </TouchableOpacity>
+
+      {/* ================= CHAT BOX ================= */}
+      {showBox && (
+        <View style={styles.showBox}>
+
+          <View style={styles.headerRow}>
+            <View style={styles.activeDot} />
+            <Text style={styles.header1}>AI Assistant</Text>
           </View>
-        </TouchableOpacity>
 
-        {/* ================= CHAT BOX ================= */}
-        {showBox && (
-          <View style={styles.showBox}>
+          <Text style={styles.activeM}>Active Monitoring</Text>
 
-            <View style={styles.headerRow}>
-              <View style={styles.activeDot} />
-              <Text style={styles.header1}>AI Assistant</Text>
-            </View>
-
-            <Text style={styles.activeM}>Active Monitoring</Text>
-
-            <ScrollView style={styles.chatContainer}>
-              {messages.map((msg, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.messageBox,
-                    msg.sender === "user"
-                      ? styles.userMessage
-                      : styles.aiMessage,
-                  ]}
-                >
-                  <Text>{msg.text}</Text>
-                </View>
-              ))}
-            </ScrollView>
-
-            <View style={styles.container1}>
-              <View style={styles.input}>
-                <TextInput
-                  placeholder="Send a message"
-                  value={message}
-                  onChangeText={setMessage}
-                  style={styles.chatbox}
-                />
-
-                <TouchableOpacity
-                  style={styles.send}
-                  onPress={async () => {
-
-                    if (message.trim() === "") return;
-
-                    const userMessage = message;
-                    setMessage("");
-
-                    setMessages((prev) => [
-                      ...prev,
-                      { text: userMessage, sender: "user" },
-                    ]);
-
-                    const data = await SendtoAI(userMessage);
-
-                    setMessages((prev) => [
-                      ...prev,
-                      { text: data.reply, sender: "ai" },
-                    ]);
-                  }}
-                >
-                  <Ionicons name="paper-plane" size={30} color="#3467f4" />
-                </TouchableOpacity>
-
+          <ScrollView style={styles.chatContainer}>
+            {messages.map((msg, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.messageBox,
+                  msg.sender === "user"
+                    ? styles.userMessage
+                    : styles.aiMessage,
+                ]}
+              >
+                <Text>{msg.text}</Text>
               </View>
+            ))}
+          </ScrollView>
+
+          <View style={styles.container1}>
+            <View style={styles.input}>
+              <TextInput
+                placeholder="Send a message"
+                value={message}
+                onChangeText={setMessage}
+                style={styles.chatbox}
+              />
+
+              <TouchableOpacity
+                style={styles.send}
+                onPress={async () => {
+
+                  if (message.trim() === "") return;
+
+                  const userMessage = message;
+                  setMessage("");
+
+                  setMessages((prev) => [
+                    ...prev,
+                    { text: userMessage, sender: "user" },
+                  ]);
+
+                  const data = await SendtoAI(userMessage);
+
+                  setMessages((prev) => [
+                    ...prev,
+                    { text: data.reply, sender: "ai" },
+                  ]);
+                }}
+              >
+                <Ionicons name="paper-plane" size={30} color="#3467f4" />
+              </TouchableOpacity>
+
             </View>
-
           </View>
-        )}
 
-      </View>
-    </ScrollView>
+        </View>
+      )}
+
+    </View>
   );
 }

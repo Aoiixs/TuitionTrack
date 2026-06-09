@@ -30,13 +30,19 @@
     <i class="bi bi-people-fill me-3"></i> Queue Monitoring
 </a>
 
+<a href="{{ url_for('add_payment') }}" class="nav-link {{ 'active' if request.path == url_for('add_payment') else '' }} mb-3 d-flex align-items-center">
+    <i class="bi bi-plus-circle me-3"></i> Add Payment
+</a>
+
+<a href="{{ url_for('history') }}"
+       class="nav-link {{ 'active' if request.path == url_for('history') else '' }}">
+        <i class="bi bi-clock-history me-3"></i> Payment History
+    </a>
+
 <a href="{{ url_for('analytics') }}" class="nav-link {{ 'active' if request.path == url_for('analytics') else '' }} mb-3 d-flex align-items-center">
     <i class="bi bi-graph-up-arrow me-3"></i> Analytics
 </a>
 
-<a href="{{ url_for('add_payment') }}" class="nav-link {{ 'active' if request.path == url_for('add_payment') else '' }} mb-3 d-flex align-items-center">
-    <i class="bi bi-plus-circle me-3"></i> Add Payment
-</a>
 
 <a href="{{ url_for('logout') }}" class="nav-link mb-3 d-flex align-items-center">
     <i class="bi bi-box-arrow-right me-3"></i> Logout

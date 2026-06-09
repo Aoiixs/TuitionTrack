@@ -30,7 +30,6 @@ def can_process_teller(teller_id):
         "SELECT COUNT(*) AS cnt FROM queue_logs WHERE teller=%s AND status='Processing'",
         (teller_id,)
     )
-
     active = cursor.fetchone()["cnt"]
 
     cursor.close()
@@ -422,6 +421,7 @@ def add_payment():
     return render_template("add_payment.html", student=student)
 
 
+
 # ================= PROCESS PAYMENT =================
 @app.route("/process_payment", methods=["POST"])
 def process_payment():
@@ -453,6 +453,9 @@ def process_payment():
         socketio.emit("ai_refresh", {
     "trigger": "process_payment"
     })
+        socketio.emit("history_refresh", {
+            "status": "updated"
+        })
 
         flash("Payment successfully processed.")
 
@@ -549,6 +552,50 @@ def analytics():
 
 
 # ================= PAYMENT HISTORY =================
+
+# ====== For web teller Function ========
+@app.route("/history")
+def history():
+    return render_template("payment_history.html")
+
+@app.route("/api/history_admin")
+def history_admin():
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute("""
+            SELECT
+                q.queue_number,
+                q.teller,
+                s.student_first_name,
+                s.student_last_name,
+                s.student_year,
+                s.student_course,
+                s.student_balance,
+                COALESCE(p.total_paid,0) AS amount_paid,
+                q.created_at
+            FROM queue_logs q
+            JOIN students s ON q.student_id = s.id
+            LEFT JOIN (
+                SELECT queue_id, SUM(amount_paid) AS total_paid
+                FROM payments
+                GROUP BY queue_id
+            ) p ON p.queue_id = q.id
+            WHERE q.status='paid'
+            ORDER BY q.created_at DESC
+        """)
+
+        return jsonify(cursor.fetchall())
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# ====== For Mobile Function ===========
 @app.route("/api/payment_history")
 def payment_history():
 
