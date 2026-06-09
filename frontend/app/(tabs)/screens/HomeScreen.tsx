@@ -226,7 +226,6 @@ export default function HomeScreen() {
 
   setMessages((prev) =>[
     ...prev,
-    {text: type, sender: "user"},
     {
       text: "Please select an option: ",
       sender: "ai",
@@ -237,6 +236,8 @@ export default function HomeScreen() {
   ]);
   
  };
+
+ 
 
 
 
@@ -256,7 +257,7 @@ export default function HomeScreen() {
   // ================= SOCKET =================
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.1.52:5000", {
+    const socket: Socket = io("http://192.168.1.50:5000", {
       transports: ["websocket"],
     });
 
@@ -264,7 +265,7 @@ export default function HomeScreen() {
 
     const fetchPrediction = async () => {
       try {
-        const res = await fetch("http://192.168.1.52:5000/ai-prediction");
+        const res = await fetch("http://192.168.1.50:5000/ai-prediction");
         const data = await res.json();
         setAiPrediction(data);
       } catch (err) {
@@ -464,12 +465,14 @@ export default function HomeScreen() {
                 </Text>
               
               <ScrollView horizontal
-              showsHorizontalScrollIndicator={false}
+              showsHorizontalScrollIndicator={true}
               nestedScrollEnabled={true}
+          
 
               contentContainerStyle={{
                 gap: 20,
                 paddingHorizontal: 10,
+                marginRight: 15
               
               }
               }

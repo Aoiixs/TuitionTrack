@@ -13,7 +13,7 @@ import {
 import io from "socket.io-client";
 
 
-const socket = io("http://192.168.1.52:5000", {
+const socket = io("http://192.168.1.50:5000", {
   transports: ["websocket"],
   forceNew: true,
 });

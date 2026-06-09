@@ -62,8 +62,8 @@ fab: {
   headerRow:{flexDirection: "row", alignItems: "center"},
   logo:{width: "30%", height: 60, },
 
-  messageBox:{maxWidth: "75%", padding: 10, borderRadius: 12, marginVertical: 5},
-  userMessage: {alignSelf: "flex-end", backgroundColor: "#e0e0e0", bottom: -10},
+  messageBox:{maxWidth: "80%", padding: 10, borderRadius: 12, marginVertical: 5, marginTop: 40},
+  userMessage: {alignSelf: "flex-end", backgroundColor: "#e0e0e0", bottom: 20},
   aiMessage: {alignSelf: "flex-start", backgroundColor: "#e0e0e0", bottom: 20},
 
 

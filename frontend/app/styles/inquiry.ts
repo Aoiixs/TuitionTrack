@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
    inquiryContainer: {
-   marginTop: 230,
+   marginTop: 220,
    
 
    },
@@ -45,7 +45,7 @@ export default StyleSheet.create({
     color: "#888888c9",
     marginBottom: 10
 
-   },
+   }
 
    
    
