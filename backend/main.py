@@ -15,7 +15,7 @@ def get_db_connection():
     return pymysql.connect(
         host="localhost",
         user="root",
-        password="Flaskframework",
+        password="lhuzxcu2375",
         database="school_queue_system",
         cursorclass=pymysql.cursors.DictCursor
     )
@@ -294,7 +294,8 @@ def mark_as_paid(queue_id):
 
             cursor.execute("""
                 UPDATE queue_logs
-                SET status='waiting'
+                SET status='processing',
+                processing_started_at=NOW()
                 WHERE id=%s
             """, (next_student["id"],))
 
