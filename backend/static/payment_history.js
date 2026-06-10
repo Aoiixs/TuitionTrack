@@ -24,8 +24,8 @@ async function loadHistory() {
                 <td>₱${Number(row.student_balance).toLocaleString()}</td>
                 <td>Cash</td>
                 <td>${formatDate(row.created_at)}</td>
-                <td> <span class="status paid">Paid</span>  </td>
-            `;
+                <td> <span class="status paid">Paid</span>  </td> 
+            `; 
 
             tableBody.appendChild(tr);
 
