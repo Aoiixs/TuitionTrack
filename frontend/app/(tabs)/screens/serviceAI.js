@@ -1,6 +1,6 @@
 export const SendtoAI = async(message) =>{
     const response = await fetch(
-        "http://192.168.1.50:5000/ai-chat",
+        "http://192.168.1.23:5000/ai-chat",
         {
             method: "POST",
             headers: {
@@ -13,5 +13,3 @@ export const SendtoAI = async(message) =>{
 
     return await response.json();
 };
-
-

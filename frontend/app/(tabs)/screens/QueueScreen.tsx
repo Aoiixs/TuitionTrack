@@ -20,7 +20,7 @@ export default function PaymentScreen() {
 
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.1.50:5000", {
+    const socket: Socket = io("http://192.168.1.23:5000", {
 
       transports: ["websocket"],
     });
@@ -110,7 +110,7 @@ export default function PaymentScreen() {
 
        
 
-          {/* ✅ Balance (separate na if needed mo later) */}
+          {/* Balance (separate na if needed ) */}
           <View style={styles.row}>
             <Text style={styles.label}>Remaining Balance</Text>
             <Text>₱ {currentPayment.Student_Balance.toFixed(2)}</Text>

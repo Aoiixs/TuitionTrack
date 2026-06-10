@@ -19,7 +19,7 @@ export default function PaymentHistoryScreen() {
 
     
 
-    const API_URL = "http://192.168.1.50:5000";
+    const API_URL = "http://192.168.1.23:5000";
 
 
     const fetchPaymentHistory = async () => {

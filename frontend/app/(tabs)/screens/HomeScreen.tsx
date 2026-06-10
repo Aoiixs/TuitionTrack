@@ -257,7 +257,7 @@ export default function HomeScreen() {
   // ================= SOCKET =================
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.1.50:5000", {
+    const socket: Socket = io("http://192.168.1.23:5000", {
       transports: ["websocket"],
     });
 
@@ -265,7 +265,7 @@ export default function HomeScreen() {
 
     const fetchPrediction = async () => {
       try {
-        const res = await fetch("http://192.168.1.50:5000/ai-prediction");
+        const res = await fetch("http:/192.168.1.23:5000/ai-prediction");
         const data = await res.json();
         setAiPrediction(data);
       } catch (err) {
