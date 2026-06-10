@@ -121,5 +121,6 @@ export default function PaymentScreen() {
           </View>
         </View>
     </ScrollView>
+
   );
 }

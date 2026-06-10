@@ -76,4 +76,15 @@ fab: {
   headers: {color: "white", fontSize: 15, alignSelf: "center", marginBottom: 280, marginRight: 130},
   activeDot:{width: 8, height: 8, display: "flex", backgroundColor: 'green', borderRadius: 20
   },
+  
+  brainButton: {
+  position: "absolute",
+  bottom: 25,
+  right: 20,
+  backgroundColor: "#fff",
+  padding: 12,
+  borderRadius: 50,
+  elevation: 5,
+  zIndex: 999,
+},
 });
