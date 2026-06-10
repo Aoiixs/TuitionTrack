@@ -38,7 +38,8 @@ function addRowPerTeller(data){
             month: "short",
             day: "numeric",
             hour: "2-digit",
-            minute: "2-digit"
+            minute: "2-digit",
+            hour12: true
         })
         : "";
 
@@ -56,7 +57,9 @@ function addRowPerTeller(data){
                 ${data.Name} ${data.Last_Name}<br>
                 <span class="subtext-id">${data.Id_Number || ""}</span>
             </td>
+            <td>${data.Student_Year}<br><span class="subtext-year">${data.Student_Course}</span></td>
             <td><span class="status waiting">waiting</span></td>
+            <td>${timestamp}</td>
         `;
 
         waitingTable.appendChild(row);
@@ -90,6 +93,7 @@ function addRowPerTeller(data){
             ${data.Name} ${data.Last_Name}<br>
             <span class="subtext-id">${data.Id_Number || ""}</span>
         </td>
+        <td>${data.Student_Year}<br><span class="subtext-year">${data.Student_Course}</span></td>
         <td><span class="status ${status}">${status}</span></td>
         <td class="amount">${formatMoney(amount_paid)}</td>
         <td class="balance">${data.Student_Balance || 0}</td>

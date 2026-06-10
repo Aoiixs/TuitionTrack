@@ -553,7 +553,7 @@ def analytics():
 
 # ================= PAYMENT HISTORY =================
 
-# ====== For web teller Function ========
+
 @app.route("/history")
 def history():
     return render_template("payment_history.html")
@@ -570,6 +570,7 @@ def history_admin():
             SELECT
                 q.queue_number,
                 q.teller,
+                s.student_no,
                 s.student_first_name,
                 s.student_last_name,
                 s.student_year,
@@ -642,17 +643,21 @@ def dashboard_stats():
     currently_processing = cursor.fetchone()["total"]
 
     cursor.execute("""
-        SELECT COUNT(*) AS total 
-        FROM payments 
-        WHERE DATE(payment_date) = CURDATE()
-    """)
+    SELECT COUNT(*) AS total
+    FROM payments p
+    JOIN queue_logs q ON p.queue_id = q.id
+    WHERE q.status = 'paid'
+    AND DATE(p.payment_date) = CURDATE()
+""")
     paid_today = cursor.fetchone()["total"]
 
     cursor.execute("""
-        SELECT IFNULL(SUM(amount_paid),0) AS total 
-        FROM payments 
-        WHERE DATE(payment_date) = CURDATE()
-    """)
+    SELECT IFNULL(SUM(p.amount_paid),0) AS total
+    FROM payments p
+    JOIN queue_logs q ON p.queue_id = q.id
+    WHERE q.status = 'paid'
+    AND DATE(p.payment_date) = CURDATE()
+""")
     total_collected = cursor.fetchone()["total"]
 
     cursor.close()
