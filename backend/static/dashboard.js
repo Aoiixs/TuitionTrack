@@ -59,6 +59,9 @@ function addRowPerTeller(data){
             </td>
             <td>${data.Student_Year}<br><span class="subtext-year">${data.Student_Course}</span></td>
             <td><span class="status waiting">waiting</span></td>
+            <td class="amount">${formatMoney(amount_paid)}</td>
+            <td class="balance">${data.Student_Balance || 0}</td>
+
             <td>${timestamp}</td>
         `;
 

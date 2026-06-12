@@ -192,9 +192,8 @@ def api_queue_logs():
 # ================= RFID PROCESS =================
 @app.route("/process-data", methods=["POST"])
 def process_data():
-
     try:
-
+        
         data = request.get_json()
         rfid_uid = data.get("Id_Number")
         rfid_count = data.get("rfid_count", 0)
@@ -294,8 +293,7 @@ def mark_as_paid(queue_id):
 
             cursor.execute("""
                 UPDATE queue_logs
-                SET status='processing',
-                processing_started_at=NOW()
+                SET status='waiting'
                 WHERE id=%s
             """, (next_student["id"],))
 

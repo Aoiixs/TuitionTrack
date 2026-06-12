@@ -13,7 +13,7 @@ import {
 import io from "socket.io-client";
 
 
-const socket = io("http://192.168.1.7:5000", {
+const socket = io("http://192.168.1.52:5000", {
   transports: ["websocket"],
   forceNew: true,
 });
@@ -25,7 +25,7 @@ export default function NotifScreen() {
 
 
   const fetchNotifications = () => {
-    fetch("http://192.168.1.7:5000/api/notifications")
+    fetch("http://192.168.1.52:5000/api/notifications")
       .then(res => res.json())
       .then(data => {
         setNotifications(data);

@@ -21,7 +21,7 @@ while True:
                 payload = {
                     "Id_Number": id_number,
                 }
-
+                
                 print("Payload to backend:", payload)
 
                 # Send to backend

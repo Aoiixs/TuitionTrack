@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { Image, Text, View, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image } from "react-native";
+import { Text, View, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import styles from "../../styles/homeStyles";
-import inquiry from "../../styles/inquiry";
 import { SendtoAI } from "./serviceAI";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import inquiry from "../../styles/inquiry";
 import { io, Socket } from "socket.io-client";
 
 // ================= TYPES =================
@@ -16,11 +17,10 @@ type StudentInfo = {
   Student_amount_pay: number;
 };
 
-type AiPrediction = {
-  students_ahead: number;
+type AIPrediction = {
+  waiting_students: number;
   avg_time_per_student: number;
   estimated_waiting_time_minutes: number;
-  current_processing_remaining?: number;
 };
 
 export default function HomeScreen() {
@@ -28,8 +28,8 @@ export default function HomeScreen() {
   const [queueList, setQueueList] = useState<StudentInfo[]>([]);
   const [processing, setProcessing] = useState<StudentInfo | null>(null);
 
-  const [aiPrediction, setAiPrediction] = useState<AiPrediction>({
-    students_ahead: 0,
+  const [aiPrediction, setAiPrediction] = useState({
+    waiting_students: 0,
     avg_time_per_student: 0,
     estimated_waiting_time_minutes: 0,
   });
@@ -38,100 +38,215 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
 
-  const mainMenu = [
+
+  const mainMenu=[
     "RFID Issue",
     "Queue Concern",
     "Notification Issue",
     "Report Problem",
     "Need Help?",
     "System Guide",
-  ];
+  ]
 
-  // ================= AI FETCH =================
-  const fetchPrediction = useCallback(async () => {
-    try {
-      if (!processing?.Queue) return;
 
-      const res = await fetch(
-        `http://192.168.1.7:5000/ai-prediction/${processing.Queue}`
-      );
+ const handleInquiry = (type: string ) =>{
+  let options: string[] = [];
 
-      const data = await res.json();
-      setAiPrediction(data);
+  switch (type){
 
-    } catch (err) {
-      console.log("AI prediction error:", err);
-    }
-  }, [processing?.Queue]);
 
-  // ================= INQUIRY =================
-  const handleInquiry = (type: string) => {
-    let options: string[] = [];
+    case "Back":
+      setMessages((prev) =>[
+        ...prev,
 
-    switch (type) {
-
-      case "RFID Issue":
-        options = ["RFID Not Detected", "RFID Lost", "RFID Damaged", "Back"];
-        break;
-
-      case "Queue Concern":
-        options = ["Queue Not Moving", "Wrong Queue Number", "Missed Queue", "Back"];
-        break;
-
-      case "Notification Issue":
-        options = ["No Notification Received", "Delayed Notification", "Back"];
-        break;
-
-      case "Report Problem":
-        options = ["System Error", "Application Crash", "Back"];
-        break;
-
-      case "Need Help?":
-        options = ["Contact Staff", "General Inquiry", "Back"];
-        break;
-
-      case "System Guide":
-        options = ["How to use QueueTrack", "Queue Basics", "Back"];
-        break;
-
-      case "How to use QueueTrack":
-        setMessages(prev => [
-          ...prev,
-          { text: type, sender: "user" },
-          {
-            text:
-              "1. Scan RFID\n2. Get queue number\n3. Monitor live\n4. Wait for turn\n5. Proceed to teller",
-            sender: "ai",
-          },
-        ]);
-        return;
-
-      default:
-        break;
-    }
-
-    if (options.length === 0) {
-      setMessages(prev => [...prev, { text: type, sender: "user" }]);
-
-      SendtoAI(type).then((data) => {
-        setMessages(prev => [...prev, { text: data.reply, sender: "ai" }]);
-      });
-
+        {text: "Back", sender: "user"},
+        {
+          text: "Please select an option: ",
+          sender: "ai",
+          type: "options",
+          options: mainMenu,
+        },
+      ]);
       return;
-    }
+      
 
-    setMessages(prev => [
+
+    case "RFID Issue":
+      options=[
+          "RFID Not Detected",
+          "RFID Lost",
+          "RFID Damaged",
+          "RFID Wrong Information",
+          
+          "Back",
+
+      ];
+      break;
+
+    case "Queue Concern":
+      options=[
+          "Queue Not Moving",
+          "Wrong Queue Number",
+          "Missed Queue",
+          "Long Waiting Time",
+          "Back",
+      ];
+      break;
+
+    case "Notification Issue":
+      options=[
+        "No Notification Received",
+        "Delayed Notification",
+        "Wrong Notification",
+        "Back",
+      ];
+      break;
+
+    case "Report Problem":
+      options=[
+        "System Error",
+        "Application Crash",
+        "Incorrect Data",
+        "Back",
+      ];
+      break;
+
+    case "Need Help?":
+      options=[
+        "Contact Staff",
+        "Talk to Support",
+        "General Inquiry",
+        "Back",
+      ];
+      break;
+
+
+
+    case "System Guide":
+      options=[
+        "How to use TuitionQueueTrack",
+        "Queue System Basics",
+        "RFID Guide",
+        "Notifications Guide",
+        "Back",
+      ];
+      break;
+
+
+
+  case "How to use TuitionQueueTrack":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "How to Use QueueTrack:\n\n" +
+        "1. Scan your RFID card\n" +
+        "2. Get your queue number automatically\n" +
+        "3. Monitor your position in real-time\n" +
+        "4. Wait until your number is called\n" +
+        "5. Proceed to the assigned teller\n\n" +
+        "You can leave the waiting area while waiting.",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+
+  case "Queue System Basics":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "QueueTrack assigns numbers automatically based on RFID scan.\n" +
+        "The system updates in real-time and shows your position in line.\n\n" +
+        "Priority is based on arrival time and system rules.",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+  case "RFID Guide":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "RFID Guide:\n\n" +
+        "• Tap your RFID card at the scanner\n" +
+        "• Make sure it is not damaged\n" +
+        "• Keep your card registered properly\n\n" +
+        "If RFID is not detected, contact ITSD.",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+  case "Notifications Guide":
+  setMessages((prev) => [
+    ...prev,
+    { text: type, sender: "user" },
+    {
+      text:
+        "Notifications are sent when:\n" +
+        "• Your turn is near\n" +
+        "• Your queue is updated\n" +
+        "• System alerts are triggered\n\n",
+      sender: "ai",
+    },
+  ]);
+  return;
+
+
+  
+
+  }
+
+
+  if (options.length === 0){
+    setMessages((prev) =>[
       ...prev,
-      { text: "Please select an option:", sender: "ai", type: "options", options },
+      {text: type, sender: "user"},
+      
     ]);
-  };
+
+    SendtoAI(type).then((data)=> {
+      setMessages((prev) =>[
+        ...prev,
+        {
+          text: data.reply, sender: "ai"},
+      ]);
+    });
+    return;
+  }
+
+  setMessages((prev) =>[
+    ...prev,
+    {
+      text: "Please select an option: ",
+      sender: "ai",
+      type: "options",
+      options,
+
+    },
+  ]);
+  
+ };
+
+ 
+
+
 
   // ================= POSITION =================
   const getPosition = () => {
     if (!processing) return null;
 
     const sorted = [...queueList].sort(
-      (a, b) => parseInt(a.Queue) - parseInt(b.Queue)
+      (a, b) => Number(a.Queue) - Number(b.Queue)
     );
 
     const index = sorted.findIndex((s) => s.Queue === processing.Queue);
@@ -142,20 +257,29 @@ export default function HomeScreen() {
   // ================= SOCKET =================
   useEffect(() => {
 
-    const socket: Socket = io("http://192.168.1.7:5000", {
+    const socket: Socket = io("http://192.168.1.52:5000", {
       transports: ["websocket"],
     });
 
     let lastUpdate = 0;
 
-    const fetchPredictionSafe = async () => {
-      if (!processing?.Queue) return;
-      await fetchPrediction();
+    const fetchPrediction = async () => {
+      try {
+        const res = await fetch("http://192.168.1.52:5000/ai-prediction");
+        const data = await res.json();
+        setAiPrediction(data);
+      } catch (err) {
+        console.log("AI prediction error:", err);
+      }
     };
+
+    socket.on("ai_refresh", () => {
+      fetchPrediction();
+    });
 
     socket.on("queue_update", (data: any) => {
 
-      const raw = data.payload || data;
+      const raw: any = data.payload || data;
 
       const status = (raw.Status || "waiting").toLowerCase().trim();
 
@@ -164,15 +288,15 @@ export default function HomeScreen() {
         Queue: raw.Queue || "",
         Status: status,
         Student_Balance: Number(raw.Student_Balance ?? 0),
-        Student_amount_pay: Number(raw.Student_amount_pay ?? 0),
+        Student_amount_pay: raw.Student_amount_pay ?? 0,
       };
 
       if (!info.Queue) return;
 
       setQueueList((prev) => {
         const index = prev.findIndex((s) => s.Queue === info.Queue);
-
         let newList;
+
         if (index >= 0) {
           newList = [...prev];
           newList[index] = info;
@@ -180,42 +304,44 @@ export default function HomeScreen() {
           newList = [...prev, info];
         }
 
-        return newList.sort((a, b) =>
-          parseInt(a.Queue) - parseInt(b.Queue)
-        );
+        return newList.sort((a, b) => Number(a.Queue) - Number(b.Queue));
       });
 
-      if (status === "processing") {
-        setProcessing(info);
-      } else {
-        setProcessing((prev) =>
-          prev?.Queue === info.Queue ? null : prev
-        );
-      }
+      setProcessing((prev) => {
+
+        if (status === "processing") {
+          return info;
+        }
+
+        if (prev?.Queue === info.Queue && status !== "processing") {
+          return null;
+        }
+
+        return prev;
+      });
 
       const now = Date.now();
-      if (now - lastUpdate > 2000) {
-        fetchPredictionSafe();
+      if (now - lastUpdate > 1500) {
+        fetchPrediction();
         lastUpdate = now;
       }
     });
 
-    fetchPredictionSafe();
-    const interval = setInterval(fetchPredictionSafe, 5000);
+    fetchPrediction();
+    const interval = setInterval(fetchPrediction, 5000);
 
     return () => {
       socket.disconnect();
       clearInterval(interval);
     };
 
-  }, [fetchPrediction]);
+  }, []);
 
   // ================= UI =================
-  const eta = aiPrediction?.estimated_waiting_time_minutes ?? 0;
-
   return (
     <View style={{ flex: 1 }}>
 
+      {/* ================= SCROLL CONTENT ================= */}
       <ScrollView contentContainerStyle={{ padding: 15, paddingBottom: 120 }}>
 
         {/* LOGO */}
@@ -226,7 +352,7 @@ export default function HomeScreen() {
           />
         </Text>
 
-        {/* PROCESSING */}
+        {/* PROCESSING CARD */}
         {processing && (
           <View style={styles.mainCard}>
             <Ionicons name="time-outline" size={35} color="#fff" />
@@ -240,28 +366,33 @@ export default function HomeScreen() {
             </View>
 
             <Text style={styles.processingText}>
+              {queueList.length > 1 ? "You're next!" : "Waiting..."}
+            </Text>
+
+            <Text style={styles.processingText}>
               You are #{getPosition() ?? 0} in line
             </Text>
           </View>
         )}
 
-        {/* INFO */}
+        {/* INFO ROW */}
         {processing && (
           <View style={styles.infoRow}>
 
             <View style={styles.smallCard}>
               <Text style={styles.smallTitle}>Estimated Wait</Text>
               <Text style={styles.smallValue}>
-                {eta > 0 ? `${Math.round(eta)} min` : "Calculating..."}
+                {aiPrediction?.estimated_waiting_time_minutes > 0
+                  ? `${Math.round(aiPrediction.estimated_waiting_time_minutes)} min`
+                  : "Calculating..."}
               </Text>
-
-              <Text style={{ fontSize: 10, color: "#666" }}>
-                {aiPrediction.students_ahead} students ahead
+              <Text style={{ fontSize: 10, color: "#666", marginTop: 5 }}>
+                {aiPrediction.waiting_students} students ahead
               </Text>
             </View>
 
             <View style={styles.smallCard}>
-              <Text style={styles.smallTitle}>Amount</Text>
+              <Text style={styles.smallTitle}>Amount to Pay</Text>
               <Text style={styles.smallValue}>
                 ₱ {processing.Student_Balance.toFixed(2)}
               </Text>
@@ -276,7 +407,7 @@ export default function HomeScreen() {
         )}
 
         {/* LIVE QUEUE */}
-        <Text style={styles.liveHeader}>🔴 Live Queue</Text>
+        <Text style={styles.liveHeader}>🔴 Live Queue Monitor</Text>
 
         {processing && (
           <View style={styles.liveCard}>
@@ -288,7 +419,7 @@ export default function HomeScreen() {
         )}
 
         {queueList
-          .filter(s => s.Queue !== processing?.Queue)
+          .filter((s) => s.Queue !== processing?.Queue)
           .map((student) => (
             <View key={student.Queue} style={styles.liveCard}>
               <Text style={styles.liveQueueNumber}>{student.Queue}</Text>
@@ -298,20 +429,104 @@ export default function HomeScreen() {
 
       </ScrollView>
 
-      {/* AI BUTTON */}
+      {/* ================= AI FLOATING BUTTON ================= */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setShowBox(!showBox)}
       >
-        <MaterialCommunityIcons name="brain" size={35} color="#fff" />
+        <MaterialCommunityIcons name="brain" size={35} color="#ffffff" />
       </TouchableOpacity>
 
-      {/* CHAT */}
+
+
+
+
+      {/* ================= CHAT BOX ================= */}
       {showBox && (
         <View style={styles.showBox}>
 
-          <ScrollView style={styles.chatContainer}>
 
+          <View style={styles.headerRow}>
+            <View style={styles.activeDot} />
+            <Text style={styles.header1}>AI Assistant</Text>
+          </View>
+
+          <Text style={styles.activeM}>Active Monitoring</Text>
+
+          <ScrollView style={styles.chatContainer}
+          nestedScrollEnabled={true}
+          
+          >
+            <View style={inquiry.inquiryContainer}>
+              
+
+              <Text style={inquiry.swipeHint}>
+                {"Swipe for more options"}
+                </Text>
+              
+              <ScrollView horizontal
+              showsHorizontalScrollIndicator={true}
+              nestedScrollEnabled={true}
+          
+
+              contentContainerStyle={{
+                gap: 20,
+                paddingHorizontal: 10,
+                marginRight: 15
+              
+              }
+              }
+              >
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("RFID Issue")}}>
+                <Text style={inquiry.inquiryText}>RFID Issue</Text>
+              </TouchableOpacity>
+
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Queue Concern")}}>
+                <Text style={inquiry.inquiryText}>Queue Concern</Text>
+              </TouchableOpacity>
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Notification Issue")}}>
+                <Text style={inquiry.inquiryText}>Notification Issue</Text>
+              </TouchableOpacity>
+
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Report Problem")}}>
+                <Text style={inquiry.inquiryText}>Report Problem</Text>
+              </TouchableOpacity>
+
+
+
+                <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("Need Help?")}}>
+                <Text style={inquiry.inquiryText}>Need Help?</Text>
+              </TouchableOpacity>
+
+
+              <TouchableOpacity
+              style = {inquiry.inquiryButton}
+              onPress={()=> {handleInquiry("System Guide")}}>
+                <Text style={inquiry.inquiryText}>System Guide</Text>
+              </TouchableOpacity>
+
+              </ScrollView>
+              
+              
+           
+          
+          </View>
             {messages.map((msg, index) => (
               <View
                 key={index}
@@ -320,53 +535,71 @@ export default function HomeScreen() {
                   msg.sender === "user"
                     ? styles.userMessage
                     : styles.aiMessage,
+                    
+
+
+                    
+                    
                 ]}
               >
                 <Text>{msg.text}</Text>
 
-                {msg.type === "options" && (
+                 {msg.type === "options" &&(
                   <View>
-                    {msg.options.map((opt: string, i: number) => (
+                    {msg.options.map((option: string, i: number) => (
                       <TouchableOpacity
-                        key={i}
-                        style={inquiry.inquiryButton}
-                        onPress={() => handleInquiry(opt)}
-                      >
-                        <Text>{opt}</Text>
+                      key={i}
+                      style={inquiry.inquiryButton}
+                      onPress={() => handleInquiry(option)}>
+                        <Text>{option}</Text>
                       </TouchableOpacity>
                     ))}
-                  </View>
-                )}
+                    </View>
+
+                )} 
               </View>
             ))}
 
           </ScrollView>
 
+          
+
           <View style={styles.container1}>
-            <TextInput
-              placeholder="Send a message"
-              value={message}
-              onChangeText={setMessage}
-              style={styles.chatbox}
-            />
+            <View style={styles.input}>
+              
+              <TextInput
+                placeholder="Send a message"
+                value={message}
+                onChangeText={setMessage}
+                style={styles.chatbox}
+              />
 
-            <TouchableOpacity
-              onPress={async () => {
-                if (!message.trim()) return;
+              <TouchableOpacity
+                style={styles.send}
+                onPress={async () => {
 
-                const userMessage = message;
-                setMessage("");
+                  if (message.trim() === "") return;
 
-                setMessages(prev => [...prev, { text: userMessage, sender: "user" }]);
+                  const userMessage = message;
+                  setMessage("");
 
-                const data = await SendtoAI(userMessage);
+                  setMessages((prev) => [
+                    ...prev,
+                    { text: userMessage, sender: "user" },
+                  ]);
 
-                setMessages(prev => [...prev, { text: data.reply, sender: "ai" }]);
-              }}
-            >
-              <Ionicons name="paper-plane" size={27} color="#3467f4" />
-            </TouchableOpacity>
+                  const data = await SendtoAI(userMessage);
 
+                  setMessages((prev) => [
+                    ...prev,
+                    { text: data.reply, sender: "ai" },
+                  ]);
+                }}
+              >
+                <Ionicons name="paper-plane" size={27} color="#3467f4" />
+              </TouchableOpacity>
+
+            </View>
           </View>
 
         </View>
