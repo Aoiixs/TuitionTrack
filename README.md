@@ -61,23 +61,24 @@ TuitionQueueTrack is a real-time web and mobile-based system developed to stream
 * Foam Board
 * Acrylic Glass
 
-## System Modules
-
-### Student Module
+### Student Module (Mobile Application)
 
 * RFID-based identification
 * Queue registration
 * Real-time queue monitoring
 * Estimated waiting time display
 * Payment status monitoring
+* Queue notifications and updates
+* Remote queue tracking through mobile devices
 
-### Admin Module
+### Admin Module (Web Application)
 
 * Queue management
 * Student payment management
 * Transaction monitoring
 * Queue analytics and reports
 * Dashboard visualization
+
 
 ## Project Structure
 
